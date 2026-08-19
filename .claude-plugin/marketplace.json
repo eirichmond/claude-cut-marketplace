@@ -1,0 +1,13 @@
+{
+  "name": "elliott-local",
+  "owner": {
+    "name": "Elliott Richmond"
+  },
+  "plugins": [
+    {
+      "name": "claude-cut",
+      "source": "./claude-cut",
+      "description": "Automated take selection and A/B roll sync for YouTube videos shot against a prompter script. Exports a clean timeline XML for DaVinci Resolve."
+    }
+  ]
+}

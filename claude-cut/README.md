@@ -1,0 +1,77 @@
+# claude-cut
+
+Automated take selection for prompter-scripted videos. Shoot continuously,
+fluff your lines, say **"retake cut"**, go again. This plugin transcribes the
+master audio, keeps the last take of each script section, syncs your B-roll
+(even at a different frame rate and start time), and hands DaVinci Resolve a
+clean timeline XML. You do the final polish.
+
+## What it replaces
+
+- Driving auto-editor by hand (it's still used under the bonnet to write
+  the final timeline, fed with take-selection decisions instead of silence
+  detection)
+- The manual backwards pass through the footage hunting for the last good take
+- Manually syncing and cutting the B-roll to match
+
+## Install
+
+```bash
+# One-off setup
+/plugin marketplace add ~/path/to/claude-cut-marketplace
+/plugin install claude-cut@elliott-local
+```
+
+Dependencies (the skill will offer to install the Python ones on first run):
+
+```bash
+brew install ffmpeg          # if not already on the machine
+pip install faster-whisper numpy scipy rapidfuzz auto-editor
+```
+
+## Shell alias
+
+Add to `.zshrc`:
+
+```bash
+claude-cut() {
+  claude "/claude-cut:edit-takes $*"
+}
+```
+
+Then from any footage folder:
+
+```bash
+claude-cut aroll.mov broll.mov script.md
+```
+
+A-roll only works too:
+
+```bash
+claude-cut aroll.mov script.md
+```
+
+## Shooting conventions the pipeline relies on
+
+- One master audio source (the A-roll clip by default)
+- Prompter script provided as markdown or plain text
+- Say "retake cut" before repeating a section (fuzzy matching catches
+  unmarked repeats too, but the keyword makes it bulletproof)
+- Clap early on when running two devices (helps the waveform sync, and helps
+  you if you ever need to check it by eye)
+- Off-script ad-libs are kept and flagged in the report, never silently binned
+
+## Outputs
+
+- `<project>_cut.fcpxml` — import via File > Import > Timeline in Resolve.
+  A-roll (with audio) on the spine, B-roll connected above it, cut identically.
+- `.claude-cut/report.md` — every keep/bin decision with timestamps.
+  Read it before trusting the cut, especially in the first few sessions.
+
+## Tuning knobs (pass through the skill)
+
+- `--keyword` — retake marker phrase (default: "retake cut")
+- `--handles` — seconds of breathing room either side of a kept range (0.25)
+- `--merge-gap` — kept ranges closer than this get merged (1.0s)
+- `--min-take-coverage` — a final take must cover this fraction of its script
+  sentence or it's flagged as partial (0.8)

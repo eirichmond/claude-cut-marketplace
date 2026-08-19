@@ -1,0 +1,8 @@
+{
+  "name": "claude-cut",
+  "version": "0.4.0",
+  "description": "Automated take selection for prompter-scripted videos. Transcribes the master audio, syncs A/B roll shot at different frame rates, keeps the last take of each script section (honouring the spoken 'retake cut' marker), trims dead air, and exports a DaVinci Resolve timeline XML plus a human-readable cut report.",
+  "author": {
+    "name": "Elliott Richmond"
+  }
+}
