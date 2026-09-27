@@ -31,7 +31,6 @@ except ImportError:
 
 PAUSE_SPLIT = 0.8       # seconds of silence that starts a new chunk
 MATCH_THRESHOLD = 70    # fuzz score (0-100) to accept a script match
-TAKE_SPLIT = 2.5        # gap above which same-sentence chunks are separate takes
 
 
 def norm(text: str) -> str:
@@ -54,7 +53,6 @@ class Chunk:
     match_score: float = 0.0
     binned: bool = False
     bin_reason: str = ""
-    rescued: bool = False
 
     @property
     def start(self) -> float:
@@ -160,56 +158,20 @@ def match_chunks(chunks: list[Chunk], sentences: list[str]) -> None:
 
 def last_take_wins(chunks: list[Chunk], coverage: float,
                    sentences: list[str]) -> None:
-    """Pick the last DELIVERY of each sentence, not the last fragment.
-
-    A single delivery is often split across several pause-separated chunks.
-    Those are one take, not competing takes, so group adjacent chunks (no
-    marker between them, small gap) before applying last-take-wins and
-    measure coverage on the whole take. A matched sentence must never end
-    up with nothing kept unless a marker explicitly binned it.
-    """
-    pos = {id(c): i for i, c in enumerate(chunks)}
-
-    def marker_between(a: Chunk, b: Chunk) -> bool:
-        return any(chunks[k].is_marker
-                   for k in range(pos[id(a)] + 1, pos[id(b)]))
-
     by_sentence: dict[int, list[Chunk]] = {}
     for ch in chunks:
         if ch.is_marker or ch.binned or ch.match_idx < 0:
             continue
         by_sentence.setdefault(ch.match_idx, []).append(ch)
-
     for idx, group in by_sentence.items():
         sent_len = len(norm(sentences[idx]).split())
-        takes: list[list[Chunk]] = [[group[0]]]
-        for prev, cur in zip(group, group[1:]):
-            if marker_between(prev, cur) or cur.start - prev.end > TAKE_SPLIT:
-                takes.append([cur])
-            else:
-                takes[-1].append(cur)
-        for take in takes[:-1]:
-            for ch in take:
-                ch.binned, ch.bin_reason = True, "earlier take"
-        winner = takes[-1]
-        n = sum(len(c.words) for c in winner)
-        if n / max(sent_len, 1) < coverage:
-            for ch in winner:
-                ch.binned = True
-                ch.bin_reason = f"partial take ({n}/{sent_len} words)"
-
-    # Safety net: never let a sentence vanish because of the coverage test.
-    # Marker decisions stay authoritative; only coverage kills are reversed.
-    for idx, group in by_sentence.items():
-        if any(not c.binned for c in group):
-            continue
-        rescue = [c for c in group if c.bin_reason.startswith("partial take")]
-        if not rescue:
-            continue
-        for ch in rescue:
-            ch.binned = False
-            ch.bin_reason = ""
-            ch.rescued = True
+        # all but the last occurrence get binned
+        for ch in group[:-1]:
+            ch.binned, ch.bin_reason = True, "earlier take"
+        winner = group[-1]
+        if len(winner.words) / max(sent_len, 1) < coverage:
+            winner.binned = True
+            winner.bin_reason = f"partial take ({len(winner.words)}/{sent_len} words)"
 
 
 def build_ranges(chunks: list[Chunk], handles: float,
@@ -248,8 +210,6 @@ def write_report(path: Path, chunks: list[Chunk], ranges: list[dict],
         else:
             tag = (f"s{ch.match_idx + 1} @{ch.match_score:.0f}"
                    if ch.match_idx >= 0 else "OFF-SCRIPT (kept, check me)")
-            if ch.rescued:
-                tag += " RESCUED (low coverage, only take - check me)"
             lines.append(f"- {t}  KEEP [{tag}]: {ch.text[:70]}")
     lines += ["", "## Final ranges", ""]
     for r in ranges:

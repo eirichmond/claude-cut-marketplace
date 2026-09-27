@@ -32,6 +32,17 @@ def probe(src: Path) -> dict:
     rate = Fraction(v.get("r_frame_rate", "25/1"))
     tc = (v.get("tags", {}).get("timecode")
           or info["format"].get("tags", {}).get("timecode"))
+    if not tc:
+        # Some cameras (e.g. Sony XAVC) only carry start timecode on a
+        # separate timed-metadata/data stream (tmcd/rtmd), not on the
+        # video stream or in the format tags. Fall back to scanning all
+        # streams so we don't silently default to 0 and desync from what
+        # Resolve links against when it auto-imports the source clip.
+        for s in info["streams"]:
+            t = s.get("tags", {}).get("timecode")
+            if t:
+                tc = t
+                break
     tc_seconds = Fraction(0)
     if tc:
         try:
