@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/director.schema.json",
+  "title": "claude-cut/director@1: TH/VO split per segment (written by the director skill)",
+  "description": "Segments reference paper-edit beats. A beat is one segment (same ID) or is split into sub-beats b03a, b03b... that tile its sentences. The director never writes spoken text.",
+  "type": "object",
+  "required": ["schema", "created", "inputs", "segments"],
+  "properties": {
+    "schema": {"const": "claude-cut/director@1"},
+    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "inputs": {
+      "type": "object", "required": ["paper_edit"],
+      "properties": {"paper_edit": {"$ref": "_defs.schema.json#/$defs/inputRef"}},
+      "additionalProperties": false
+    },
+    "segments": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["id", "beat", "mode"],
+        "properties": {
+          "id": {"$ref": "_defs.schema.json#/$defs/segmentId"},
+          "beat": {"$ref": "_defs.schema.json#/$defs/beatId"},
+          "sentences": {"$ref": "_defs.schema.json#/$defs/sentenceRange"},
+          "mode": {"enum": ["th", "vo"]},
+          "delivery": {"type": "string"},
+          "on_screen": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "cues": {
+      "description": "Bed cues added by the director only.",
+      "type": "array", "items": {"$ref": "_defs.schema.json#/$defs/cue"}
+    },
+    "judgement_calls": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["segment", "note"],
+        "properties": {
+          "segment": {"$ref": "_defs.schema.json#/$defs/segmentId"},
+          "note": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -26,7 +26,7 @@ Dependencies (the skill will offer to install the Python ones on first run):
 
 ```bash
 brew install ffmpeg          # if not already on the machine
-pip install faster-whisper numpy scipy rapidfuzz auto-editor
+pip install faster-whisper numpy scipy rapidfuzz auto-editor jsonschema
 ```
 
 ## Shell alias
