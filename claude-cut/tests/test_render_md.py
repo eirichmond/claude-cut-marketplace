@@ -35,3 +35,14 @@ def test_render_refuses_invalid(chain):
     with pytest.raises(SystemExit) as e:
         render(chain.director)
     assert "does not validate" in str(e.value)
+
+
+def test_render_director_shows_reanchors(chain):
+    from test_validate import th_first_split
+    chain.build(d_mutate=th_first_split)
+    md = render(chain.director)
+    assert "## 5. Reanchored beds" in md
+    assert ("| `b03.sr1` | sentence 5 | sentence 7 at \"progress bar\" | b03b | "
+            "b03a went to camera; the screen starts at b03b |") in md
+    vo = md.split("## 2. Voiceover shot list")[1].split("## 3.")[0]
+    assert "*Bed:* `b03.sr1`" in vo and "(reanchored, see below)" in vo

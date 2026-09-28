@@ -105,11 +105,24 @@ def sentence_owner(segments: list[dict]) -> dict:
 
 
 def all_cues(paper_edit: dict, director: dict | None = None) -> list[dict]:
-    """Every cue with its parent beat id, paper-edit first then director."""
+    """Every cue with its parent beat id, paper-edit first then director.
+
+    With a director, its reanchor entries are applied: the paper-edit cue
+    keeps its ID and brief, only the anchor changes, and '_reanchor' holds
+    the entry so renders can show it.
+    """
+    moves = {}
+    if director:
+        for r in director.get("reanchor", []):
+            moves.setdefault(r["cue"], r)
     cues = []
     for beat in paper_edit["beats"]:
         for c in beat.get("cues", []):
-            cues.append({**c, "_beat": beat["id"], "_from": "paper-edit"})
+            cue = {**c, "_beat": beat["id"], "_from": "paper-edit"}
+            if c["id"] in moves:
+                cue["anchor"] = dict(moves[c["id"]]["to"])
+                cue["_reanchor"] = moves[c["id"]]
+            cues.append(cue)
     if director:
         for c in director.get("cues", []):
             cues.append({**c, "_beat": c["id"].split(".")[0], "_from": "director"})

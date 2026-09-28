@@ -4,41 +4,126 @@
   "title": "claude-cut/director@1: TH/VO split per segment (written by the director skill)",
   "description": "Segments reference paper-edit beats. A beat is one segment (same ID) or is split into sub-beats b03a, b03b... that tile its sentences. The director never writes spoken text.",
   "type": "object",
-  "required": ["schema", "created", "inputs", "segments"],
+  "required": [
+    "schema",
+    "created",
+    "inputs",
+    "segments"
+  ],
   "properties": {
-    "schema": {"const": "claude-cut/director@1"},
-    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "schema": {
+      "const": "claude-cut/director@1"
+    },
+    "created": {
+      "$ref": "_defs.schema.json#/$defs/created"
+    },
     "inputs": {
-      "type": "object", "required": ["paper_edit"],
-      "properties": {"paper_edit": {"$ref": "_defs.schema.json#/$defs/inputRef"}},
+      "type": "object",
+      "required": [
+        "paper_edit"
+      ],
+      "properties": {
+        "paper_edit": {
+          "$ref": "_defs.schema.json#/$defs/inputRef"
+        }
+      },
       "additionalProperties": false
     },
     "segments": {
-      "type": "array", "minItems": 1,
+      "type": "array",
+      "minItems": 1,
       "items": {
-        "type": "object", "required": ["id", "beat", "mode"],
+        "type": "object",
+        "required": [
+          "id",
+          "beat",
+          "mode"
+        ],
         "properties": {
-          "id": {"$ref": "_defs.schema.json#/$defs/segmentId"},
-          "beat": {"$ref": "_defs.schema.json#/$defs/beatId"},
-          "sentences": {"$ref": "_defs.schema.json#/$defs/sentenceRange"},
-          "mode": {"enum": ["th", "vo"]},
-          "delivery": {"type": "string"},
-          "on_screen": {"type": "string"}
+          "id": {
+            "$ref": "_defs.schema.json#/$defs/segmentId"
+          },
+          "beat": {
+            "$ref": "_defs.schema.json#/$defs/beatId"
+          },
+          "sentences": {
+            "$ref": "_defs.schema.json#/$defs/sentenceRange"
+          },
+          "mode": {
+            "enum": [
+              "th",
+              "vo"
+            ]
+          },
+          "delivery": {
+            "type": "string"
+          },
+          "on_screen": {
+            "type": "string"
+          }
         },
         "additionalProperties": false
       }
     },
     "cues": {
       "description": "Bed cues added by the director only.",
-      "type": "array", "items": {"$ref": "_defs.schema.json#/$defs/cue"}
+      "type": "array",
+      "items": {
+        "$ref": "_defs.schema.json#/$defs/cue"
+      }
+    },
+    "reanchor": {
+      "description": "Moves a paper-edit bed cue to a new sentence anchor inside the same parent beat. The cue's ID and brief never change. Validation runs after reanchors are applied.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "cue",
+          "from",
+          "to",
+          "reason"
+        ],
+        "properties": {
+          "cue": {
+            "$ref": "_defs.schema.json#/$defs/cueId"
+          },
+          "from": {
+            "description": "The paper-edit anchor being replaced, exactly as it is there (null when the cue had no anchor).",
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "_defs.schema.json#/$defs/anchor"
+              }
+            ]
+          },
+          "to": {
+            "$ref": "_defs.schema.json#/$defs/sentenceAnchor"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
     },
     "judgement_calls": {
       "type": "array",
       "items": {
-        "type": "object", "required": ["segment", "note"],
+        "type": "object",
+        "required": [
+          "segment",
+          "note"
+        ],
         "properties": {
-          "segment": {"$ref": "_defs.schema.json#/$defs/segmentId"},
-          "note": {"type": "string"}
+          "segment": {
+            "$ref": "_defs.schema.json#/$defs/segmentId"
+          },
+          "note": {
+            "type": "string"
+          }
         },
         "additionalProperties": false
       }

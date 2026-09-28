@@ -181,7 +181,9 @@ def render_director(d: dict, pe: dict, script: Script, src: Path) -> str:
                 out += [f"*On screen:* {seg['on_screen']}", ""]
             for c in seg_cues[seg["id"]]:
                 if c["placement"] == "bed":
-                    out += [f"*Bed:* {describe_cue(c)}", ""]
+                    moved = " *(reanchored, see below)*" \
+                        if "_reanchor" in c else ""
+                    out += [f"*Bed:* {describe_cue(c)}{moved}", ""]
 
     out += ["---", "", "## 3. Running order", "",
             "| # | Segment | Mode | Section | Words |", "|---|---|---|---|---|"]
@@ -190,12 +192,38 @@ def render_director(d: dict, pe: dict, script: Script, src: Path) -> str:
         out.append(f"| {i} | {seg['id']} | {seg['mode'].upper()} | "
                    f"{cell(sec_titles.get(sec, sec))} | {words(text(seg))} |")
 
+    section_no = 4
     if judgement:
-        out += ["", "---", "", "## 4. Judgement calls", ""]
+        out += ["", "---", "", f"## {section_no}. Judgement calls", ""]
+        section_no += 1
         for sid, notes in judgement.items():
             for n in notes:
                 out.append(f"- **{sid}.** {n}")
+
+    moves = d.get("reanchor", [])
+    if moves:
+        out += ["", "---", "", f"## {section_no}. Reanchored beds", "",
+                "Paper-edit bed cues the director moved within their beat. "
+                "The ID and brief are unchanged.", "",
+                "| Cue | Was | Now | Lands on | Reason |",
+                "|---|---|---|---|---|"]
+        for r in moves:
+            lands = owner.get(r["to"]["sentence"], "?")
+            out.append(f"| `{r['cue']}` | {describe_anchor(r['from'])} | "
+                       f"{describe_anchor(r['to'])} | {lands} | "
+                       f"{cell(r['reason'])} |")
     return "\n".join(out).rstrip() + "\n"
+
+
+def describe_anchor(anchor: dict | None) -> str:
+    if not anchor:
+        return "start of beat"
+    if "cue" in anchor:
+        return f"with {anchor['cue']}"
+    text = f"sentence {anchor['sentence']}"
+    if "phrase" in anchor:
+        text += f" at \"{cell(anchor['phrase'])}\""
+    return text
 
 
 def render(path: Path) -> str:

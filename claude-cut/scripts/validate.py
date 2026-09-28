@@ -301,9 +301,15 @@ def check_director(doc: dict, pe: dict, script: Script) -> list[str]:
             errs.append(f"{cid}: anchor sentence {anchor['sentence']} lands on "
                         f"{where}, not a VO sub-beat of {parent}")
 
+    errs += check_reanchors(doc, pe, beats)
+
+    # Re-check cues with reanchors applied. Paper-edit cues were checked on
+    # their own already, so only report the ones whose anchor moved.
     cues = all_cues(pe, doc)
+    unchanged = tuple(c["id"] + ":" for c in cues
+                      if c["_from"] == "paper-edit" and "_reanchor" not in c)
     errs += [e for e in check_cues(cues, beats, script, pe)
-             if not e.startswith(tuple(c["id"] + ":" for c in all_cues(pe)))]
+             if not e.startswith(unchanged)]
 
     # beds per segment
     by_id = {c["id"]: c for c in cues}
@@ -334,6 +340,43 @@ def check_director(doc: dict, pe: dict, script: Script) -> list[str]:
     for jc in doc.get("judgement_calls", []):
         if jc["segment"] not in seg_by_id:
             errs.append(f"judgement_calls: unknown segment {jc['segment']}")
+    return errs
+
+
+def check_reanchors(doc: dict, pe: dict, beats: dict) -> list[str]:
+    """Reanchor may only move a paper-edit bed within its own parent beat,
+    and must record the anchor it replaces exactly."""
+    errs: list[str] = []
+    pe_cues = {c["id"]: c for c in all_cues(pe)}
+    director_ids = {c["id"] for c in doc.get("cues", [])}
+    seen = set()
+    for r in doc.get("reanchor", []):
+        cid = r["cue"]
+        if cid in seen:
+            errs.append(f"reanchor {cid}: listed more than once")
+            continue
+        seen.add(cid)
+        cue = pe_cues.get(cid)
+        if not cue:
+            if cid in director_ids:
+                errs.append(f"reanchor {cid}: only paper-edit cues can be "
+                            f"reanchored; change the director cue's anchor")
+            else:
+                errs.append(f"reanchor {cid}: no such cue in the paper edit")
+            continue
+        if cue["placement"] != "bed":
+            errs.append(f"reanchor {cid}: only bed cues can be reanchored "
+                        f"(this is {cue['placement']})")
+        current = cue.get("anchor")
+        if current != r["from"]:
+            errs.append(f"reanchor {cid}: 'from' is {json.dumps(r['from'])} "
+                        f"but the paper edit's anchor is "
+                        f"{json.dumps(current)}")
+        a, b = beats[cue["_beat"]]["sentences"]
+        n = r["to"]["sentence"]
+        if not a <= n <= b:
+            errs.append(f"reanchor {cid}: new anchor sentence {n} is outside "
+                        f"its parent beat {cue['_beat']} ({a}-{b})")
     return errs
 
 

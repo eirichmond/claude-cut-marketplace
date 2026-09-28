@@ -284,3 +284,87 @@ def test_director_reports_bad_paper_edit(chain):
         p["beats"][3]["sentences"] = [9, 10]
     errs = d_errors(chain, None, pe)
     assert errs and all(e.startswith("[mini.paper-edit.json]") for e in errs)
+
+
+# --- reanchor ---------------------------------------------------------------
+
+def th_first_split(d):
+    """b03a becomes TH, so the paper-edit bed b03.sr1 (sentence 5) lands on
+    a talking-head sub-beat. The director drops its own bed and moves
+    b03.sr1 into the VO sub-beat instead."""
+    d["segments"][2]["mode"] = "th"
+    d["cues"] = []
+    d["reanchor"] = [{"cue": "b03.sr1", "from": {"sentence": 5},
+                      "to": {"sentence": 7, "phrase": "progress bar"},
+                      "reason": "b03a went to camera; the screen starts at b03b"}]
+
+
+def test_reanchor_moves_bed_into_vo_subbeat(chain):
+    assert d_errors(chain, th_first_split) == []
+
+
+def test_without_reanchor_the_same_split_fails(chain):
+    def m(d):
+        th_first_split(d)
+        d.pop("reanchor")
+    errs = d_errors(chain, m)
+    assert any("b03.sr1: bed lands on talking-head segment b03a" in e
+               for e in errs)
+    assert any("b03b: VO segment has no bed" in e for e in errs)
+
+
+def test_reanchor_rules(chain):
+    def m(d):
+        th_first_split(d)
+        d["cues"] = [{"id": "b03.sr2", "kind": "sr", "placement": "bed",
+                      "anchor": {"sentence": 8}, "brief": "director bed"}]
+        d["reanchor"] += [
+            {"cue": "b03.sr1", "from": {"sentence": 5},
+             "to": {"sentence": 8}, "reason": "twice"},
+            {"cue": "b03.lt1", "from": {"sentence": 6, "phrase": "export button"},
+             "to": {"sentence": 7}, "reason": "not a bed"},
+            {"cue": "b03.sr2", "from": {"sentence": 8},
+             "to": {"sentence": 7}, "reason": "director cue"},
+            {"cue": "b02.sr1", "from": None, "to": {"sentence": 4},
+             "reason": "doesn't exist"},
+        ]
+    errs = d_errors(chain, m)
+    for want in ["reanchor b03.sr1: listed more than once",
+                 "reanchor b03.lt1: only bed cues can be reanchored",
+                 "reanchor b03.sr2: only paper-edit cues can be reanchored",
+                 "reanchor b02.sr1: no such cue in the paper edit"]:
+        assert any(want in e for e in errs), (want, errs)
+
+
+def test_reanchor_must_record_the_old_anchor(chain):
+    def m(d):
+        th_first_split(d)
+        d["reanchor"][0]["from"] = None
+    errs = d_errors(chain, m)
+    assert any("reanchor b03.sr1: 'from' is null but the paper edit's anchor "
+               "is {\"sentence\": 5}" in e for e in errs)
+
+
+def test_reanchor_stays_in_parent_beat(chain):
+    def m(d):
+        th_first_split(d)
+        d["reanchor"][0]["to"] = {"sentence": 9}
+    errs = d_errors(chain, m)
+    assert any("reanchor b03.sr1: new anchor sentence 9 is outside its parent "
+               "beat b03 (5-8)" in e for e in errs)
+
+
+def test_reanchored_phrase_is_still_checked(chain):
+    def m(d):
+        th_first_split(d)
+        d["reanchor"][0]["to"]["phrase"] = "spinning wheel"
+    errs = d_errors(chain, m)
+    assert any('b03.sr1: phrase "spinning wheel" is not in sentence 7' in e
+               for e in errs)
+
+
+def test_reanchor_needs_a_reason(chain):
+    def m(d):
+        th_first_split(d)
+        d["reanchor"][0]["reason"] = ""
+    assert any("reanchor/0/reason" in e for e in d_errors(chain, m))
