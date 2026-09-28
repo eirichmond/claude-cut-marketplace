@@ -34,13 +34,13 @@ def run_script(name: str, *args) -> subprocess.CompletedProcess:
 MINI_PAPER_EDIT = {
     "title": "Mini test video",
     "notes": {"tone": "Light.", "blur_list": ["nothing"]},
-    "sections": [{"id": "sec02", "chapter": "1. Demo"}],
+    "sections": [{"id": "sec02", "purpose": "Show the export."}],
     "beats": [
         {"id": "b01", "section": "sec01", "sentences": [1, 3],
          "visual": "A, medium", "transition_in": "hard_cut", "cues": [
              {"id": "b01.mg1", "kind": "mg", "placement": "insert_before",
               "duration": {"seconds": 2.0}, "layer": "full",
-              "brief": "Cold open sting", "sfx": "b01.sfx1"},
+              "brief": "Cold open sting"},
              {"id": "b01.sfx1", "kind": "sfx", "placement": "overlay",
               "anchor": {"cue": "b01.mg1"}, "brief": "low hit"},
              {"id": "b01.lt1", "kind": "lt", "placement": "overlay",
@@ -49,6 +49,7 @@ MINI_PAPER_EDIT = {
         {"id": "b02", "section": "sec01", "sentences": [4, 4],
          "visual": "A, punch in", "cues": []},
         {"id": "b03", "section": "sec02", "sentences": [5, 8],
+         "chapter": "1. Demo",
          "visual": "SR: settings panel", "cues": [
              {"id": "b03.chapter1", "kind": "chapter",
               "placement": "insert_before", "layer": "full",

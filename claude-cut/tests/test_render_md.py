@@ -12,7 +12,7 @@ def test_render_paper_edit(chain):
     assert "Welcome back to the channel. Today we fix the edit. Fine." in md
     assert "**b03**<br>s5–8" in md
     assert "`b03.lt1` LT, to \"progress bar\" at \"export button\": Export" in md
-    assert "### Demo (chapter: 1. Demo)" in md
+    assert "### Demo" in md and "**Chapter: 1. Demo**" in md
     # inserts push the estimated timecode: b01 starts after the 2s sting
     assert "| **b01**<br>s1–3 | 0:02 |" in md
 

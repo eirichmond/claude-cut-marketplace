@@ -368,3 +368,33 @@ def test_reanchor_needs_a_reason(chain):
         th_first_split(d)
         d["reanchor"][0]["reason"] = ""
     assert any("reanchor/0/reason" in e for e in d_errors(chain, m))
+
+
+# --- non-blocking notes and script_cue lists -----------------------------------
+
+def test_lint_notes_unused_script_cues_and_bare_key_points(chain):
+    from validate import lint_file
+    def m(pe):
+        pe["beats"][1]["key_point"] = True            # b02 has no cues
+        pe["beats"][2]["cues"][1]["script_cue"] = [1]  # the [Screen: ...] cue
+    chain.write_script().write_paper_edit(m)
+    assert errors(chain.paper_edit) == []
+    notes = lint_file(chain.paper_edit)
+    # script cue 0 is [Talking head]: a mode note, never flagged
+    assert not any("script cue 0" in n for n in notes)
+    assert "b02: key point with no reinforcing cue" in " ".join(notes)
+    r = run_script("validate.py", chain.paper_edit)
+    assert r.returncode == 0 and "note: b02: key point" in r.stdout
+
+
+def test_script_cue_index_checked_in_lists(chain):
+    def m(pe):
+        pe["beats"][2]["cues"][1]["script_cue"] = [1, 7]
+    assert any("b03.sr1: script_cue 7 does not exist" in e
+               for e in pe_errors(chain, m))
+
+
+def test_chapter_is_a_beat_property(chain):
+    def m(pe):
+        pe["sections"] = [{"id": "sec02", "chapter": "1. Demo"}]
+    assert any("sections/0" in e and "chapter" in e for e in pe_errors(chain, m))

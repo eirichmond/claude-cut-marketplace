@@ -153,13 +153,23 @@
           "type": "string",
           "minLength": 1
         },
-        "sfx": {
-          "$ref": "#/$defs/cueId"
-        },
         "script_cue": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Index into script.json script_cues this cue came from"
+          "description": "Index (or indexes) into script.json script_cues this cue came from",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          ]
         }
       },
       "additionalProperties": false

@@ -1,0 +1,1407 @@
+{
+ "schema": "claude-cut/script@1",
+ "created": "2026-09-28T15:01:40Z",
+ "inputs": {
+  "script": {
+   "path": "legacy/claude-code-wordpress-mcp-setup-script-v2.md",
+   "sha256": "2501ab2d23a611201edb7cbfbdd1091e00af3c8ccb69287348c22eba6cc3f860"
+  }
+ },
+ "title": "Connect Claude Code to WordPress with MCP (Then Lock It Down)",
+ "preamble": [
+  "Bracketed lines are on-screen cues, not narration. `[MG]` marks a motion graphic."
+ ],
+ "sections": [
+  {
+   "id": "sec01",
+   "title": "Cold open",
+   "level": 3,
+   "first": 1,
+   "last": 13
+  },
+  {
+   "id": "sec02",
+   "title": "Step one: a user with the lowest possible role",
+   "level": 3,
+   "first": 14,
+   "last": 19
+  },
+  {
+   "id": "sec03",
+   "title": "Step two: an application password",
+   "level": 3,
+   "first": 20,
+   "last": 25
+  },
+  {
+   "id": "sec04",
+   "title": "Step three: install the MCP Adapter",
+   "level": 3,
+   "first": 26,
+   "last": 34
+  },
+  {
+   "id": "sec05",
+   "title": "The hatch and the cupboard",
+   "level": 3,
+   "first": 35,
+   "last": 46
+  },
+  {
+   "id": "sec06",
+   "title": "Step four: the MCP config file",
+   "level": 3,
+   "first": 47,
+   "last": 68
+  },
+  {
+   "id": "sec07",
+   "title": "Step five: fire it up",
+   "level": 3,
+   "first": 69,
+   "last": 81
+  },
+  {
+   "id": "sec08",
+   "title": "Quick test: what can it actually see?",
+   "level": 3,
+   "first": 82,
+   "last": 86
+  },
+  {
+   "id": "sec09",
+   "title": "Put the guard rails up first",
+   "level": 3,
+   "first": 87,
+   "last": 100
+  },
+  {
+   "id": "sec10",
+   "title": "Now the abilities",
+   "level": 3,
+   "first": 101,
+   "last": 114
+  },
+  {
+   "id": "sec11",
+   "title": "Confession time: I got AI to build the ability too",
+   "level": 2,
+   "first": 115,
+   "last": 132
+  },
+  {
+   "id": "sec12",
+   "title": "Inside the ability",
+   "level": 2,
+   "first": 133,
+   "last": 165
+  },
+  {
+   "id": "sec13",
+   "title": "End screen",
+   "level": 3,
+   "first": 166,
+   "last": 168
+  }
+ ],
+ "sentences": [
+  {
+   "n": 1,
+   "section": "sec01",
+   "para": 1,
+   "text": "While I was testing this, Claude Code got into my live WordPress site over SSH, which is not how I'd told it to get in."
+  },
+  {
+   "n": 2,
+   "section": "sec01",
+   "para": 1,
+   "text": "I'll show you exactly how that happened later, and how to stop it happening to you."
+  },
+  {
+   "n": 3,
+   "section": "sec01",
+   "para": 2,
+   "text": "Okay, so some of you are going to hate this."
+  },
+  {
+   "n": 4,
+   "section": "sec01",
+   "para": 2,
+   "text": "AI is everywhere, and we're using it in WordPress in all sorts of different ways now."
+  },
+  {
+   "n": 5,
+   "section": "sec01",
+   "para": 2,
+   "text": "Locally, you can spin up a WordPress site pretty easily with the Studio app and chat to the built-in AI."
+  },
+  {
+   "n": 6,
+   "section": "sec01",
+   "para": 2,
+   "text": "Fine."
+  },
+  {
+   "n": 7,
+   "section": "sec01",
+   "para": 2,
+   "text": "But I wanted to set up my own configuration, using Claude Code, talking to a real site."
+  },
+  {
+   "n": 8,
+   "section": "sec01",
+   "para": 3,
+   "text": "Now, there is official documentation for this."
+  },
+  {
+   "n": 9,
+   "section": "sec01",
+   "para": 3,
+   "text": "It lives on the WordPress GitHub account under the MCP Adapter repository, and it tells you how to connect your site over MCP."
+  },
+  {
+   "n": 10,
+   "section": "sec01",
+   "para": 3,
+   "text": "What it doesn't do is walk you through the couple of things you need in place first, or how to actually build the config file."
+  },
+  {
+   "n": 11,
+   "section": "sec01",
+   "para": 3,
+   "text": "So that's what this video is."
+  },
+  {
+   "n": 12,
+   "section": "sec01",
+   "para": 4,
+   "text": "For those of you who don't know, MCP stands for Model Context Protocol, and all it really is is a standard way for an AI agent to talk to a piece of software."
+  },
+  {
+   "n": 13,
+   "section": "sec01",
+   "para": 4,
+   "text": "Keep that in your back pocket, because I'll give you a better analogy in a minute."
+  },
+  {
+   "n": 14,
+   "section": "sec02",
+   "para": 5,
+   "text": "The first thing to do happens on your live production site, not your local one, because we're going to connect local to production and interrogate the real thing."
+  },
+  {
+   "n": 15,
+   "section": "sec02",
+   "para": 5,
+   "text": "So on your live site, create a new user."
+  },
+  {
+   "n": 16,
+   "section": "sec02",
+   "para": 5,
+   "text": "I've called mine claude-ai, and I've given it a password I'm probably never going to log in with (which doesn't matter for this connection anyway)."
+  },
+  {
+   "n": 17,
+   "section": "sec02",
+   "para": 6,
+   "text": "The important bit is the role."
+  },
+  {
+   "n": 18,
+   "section": "sec02",
+   "para": 6,
+   "text": "Set it to the lowest possible, which is Subscriber."
+  },
+  {
+   "n": 19,
+   "section": "sec02",
+   "para": 6,
+   "text": "A lot of the tutorials out there just generate the password on the admin account they're already logged in as, and you really don't want to hand an AI admin and let it go wild on your site doing things you didn't expect."
+  },
+  {
+   "n": 20,
+   "section": "sec03",
+   "para": 7,
+   "text": "Next, on that same user, scroll down to Application Passwords and generate one."
+  },
+  {
+   "n": 21,
+   "section": "sec03",
+   "para": 7,
+   "text": "If you've not come across these, an application password is a separate credential that lets a piece of software talk to your site without using your actual login."
+  },
+  {
+   "n": 22,
+   "section": "sec03",
+   "para": 7,
+   "text": "Give it a name, hit the button, and WordPress generates it for you and shows it once, so copy it somewhere safe because you won't see it again."
+  },
+  {
+   "n": 23,
+   "section": "sec03",
+   "para": 8,
+   "text": "So now we've got a username and an application password for our claude-ai user."
+  },
+  {
+   "n": 24,
+   "section": "sec03",
+   "para": 8,
+   "text": "On their own, they don't give an AI anything useful to work with."
+  },
+  {
+   "n": 25,
+   "section": "sec03",
+   "para": 8,
+   "text": "They just sit there."
+  },
+  {
+   "n": 26,
+   "section": "sec04",
+   "para": 9,
+   "text": "Now install the official WordPress MCP Adapter plugin."
+  },
+  {
+   "n": 27,
+   "section": "sec04",
+   "para": 9,
+   "text": "As far as I know it's being assessed for the WordPress plugin directory, but at the moment it doesn't live there."
+  },
+  {
+   "n": 28,
+   "section": "sec04",
+   "para": 9,
+   "text": "It lives on GitHub under the official WordPress account, in a repo called `mcp-adapter`, and the link is in the description."
+  },
+  {
+   "n": 29,
+   "section": "sec04",
+   "para": 10,
+   "text": "The easiest way in is the Releases page on that repo, where there's a ready-made `mcp-adapter.zip` to download."
+  },
+  {
+   "n": 30,
+   "section": "sec04",
+   "para": 10,
+   "text": "Upload that through Plugins, Add New, on your live site, and activate it."
+  },
+  {
+   "n": 31,
+   "section": "sec04",
+   "para": 10,
+   "text": "(If you'd rather build it yourself, you can clone the repo and build the zip, but for a live site I'd stick with the tagged release.)"
+  },
+  {
+   "n": 32,
+   "section": "sec04",
+   "para": 11,
+   "text": "Again, on its own, it just sits there."
+  },
+  {
+   "n": 33,
+   "section": "sec04",
+   "para": 11,
+   "text": "A user with an application password does nothing, and having the adapter installed does nothing."
+  },
+  {
+   "n": 34,
+   "section": "sec04",
+   "para": 11,
+   "text": "The magic is in how you put them together, and that's where the analogy comes in."
+  },
+  {
+   "n": 35,
+   "section": "sec05",
+   "para": 12,
+   "text": "Imagine you're a chef (bear with me, I was one once) and you need to get into the ingredients cupboard."
+  },
+  {
+   "n": 36,
+   "section": "sec05",
+   "para": 12,
+   "text": "The MCP server is the doorway into that cupboard."
+  },
+  {
+   "n": 37,
+   "section": "sec05",
+   "para": 12,
+   "text": "The hatch, if you like."
+  },
+  {
+   "n": 38,
+   "section": "sec05",
+   "para": 13,
+   "text": "Inside the cupboard, all the ingredients are in jars, and those jars are the Abilities API."
+  },
+  {
+   "n": 39,
+   "section": "sec05",
+   "para": 13,
+   "text": "An ability is a single thing your site can do, described in a way an AI agent can understand, like creating a post, looking up an order or regenerating delivery slots."
+  },
+  {
+   "n": 40,
+   "section": "sec05",
+   "para": 13,
+   "text": "Nothing is in the cupboard unless somebody has registered it as an ability, and every ability carries a permission check, much like the capabilities your user roles already have."
+  },
+  {
+   "n": 41,
+   "section": "sec05",
+   "para": 14,
+   "text": "So some jars have a padlock on them and some are open, depending on who's asking."
+  },
+  {
+   "n": 42,
+   "section": "sec05",
+   "para": 14,
+   "text": "Our subscriber user can't reach much, whereas an admin could reach a lot more."
+  },
+  {
+   "n": 43,
+   "section": "sec05",
+   "para": 14,
+   "text": "That's the whole point of picking the lowest role."
+  },
+  {
+   "n": 44,
+   "section": "sec05",
+   "para": 15,
+   "text": "What you really need to understand is that the key to the hatch is not the adapter plugin, and it's not the user with the application password."
+  },
+  {
+   "n": 45,
+   "section": "sec05",
+   "para": 15,
+   "text": "The key is the MCP configuration on your local machine."
+  },
+  {
+   "n": 46,
+   "section": "sec05",
+   "para": 15,
+   "text": "That config is what opens the hatch, and the abilities are what's on the shelves once you're in."
+  },
+  {
+   "n": 47,
+   "section": "sec06",
+   "para": 16,
+   "text": "The official docs give you a basic config, but they don't tell you where it lives or how to build it, so let's do that."
+  },
+  {
+   "n": 48,
+   "section": "sec06",
+   "para": 16,
+   "text": "In your local project folder, create a file called `.mcp.json`, which is just a JSON object."
+  },
+  {
+   "n": 49,
+   "section": "sec06",
+   "para": 17,
+   "text": "From the MCP adapter GitHub docs, you can just copy this object directly into your .mcp.json file."
+  },
+  {
+   "n": 50,
+   "section": "sec06",
+   "para": 18,
+   "text": "At the top level we need an `mcpServers` object."
+  },
+  {
+   "n": 51,
+   "section": "sec06",
+   "para": 18,
+   "text": "You can set up multiple servers in here, but this is the bare minimum."
+  },
+  {
+   "n": 52,
+   "section": "sec06",
+   "para": 18,
+   "text": "Inside that, create an object named after the connection."
+  },
+  {
+   "n": 53,
+   "section": "sec06",
+   "para": 18,
+   "text": "I've called mine `claude-ai` to match the user."
+  },
+  {
+   "n": 54,
+   "section": "sec06",
+   "para": 19,
+   "text": "Now the guts of it."
+  },
+  {
+   "n": 55,
+   "section": "sec06",
+   "para": 19,
+   "text": "`command` is `npx`, and `args` is an array with `-y` and then `@automattic/mcp-wordpress-remote@latest`."
+  },
+  {
+   "n": 56,
+   "section": "sec06",
+   "para": 19,
+   "text": "That's the little bridge that runs on your machine and talks to the adapter on your site."
+  },
+  {
+   "n": 57,
+   "section": "sec06",
+   "para": 20,
+   "text": "Then the environment variables."
+  },
+  {
+   "n": 58,
+   "section": "sec06",
+   "para": 20,
+   "text": "`WP_API_URL` is your site, followed by the route to the hatch, which is `/wp-json/mcp/mcp-adapter-default-server`."
+  },
+  {
+   "n": 59,
+   "section": "sec06",
+   "para": 20,
+   "text": "That's the address the agent goes looking for."
+  },
+  {
+   "n": 60,
+   "section": "sec06",
+   "para": 20,
+   "text": "I'm using the CasaGees site, which is the pizza delivery service we run from home, a little side hustle that keeps me busy at weekends."
+  },
+  {
+   "n": 61,
+   "section": "sec06",
+   "para": 21,
+   "text": "`WP_API_USERNAME` is the user you created, and `WP_API_PASSWORD` is the application password WordPress generated for it."
+  },
+  {
+   "n": 62,
+   "section": "sec06",
+   "para": 22,
+   "text": "Now, for security reasons, I haven't pasted the real values in here."
+  },
+  {
+   "n": 63,
+   "section": "sec06",
+   "para": 22,
+   "text": "I've set them as environment variables on my machine and I'm referencing them with a dollar sign and the variable name in curly brackets."
+  },
+  {
+   "n": 64,
+   "section": "sec06",
+   "para": 22,
+   "text": "That way the actual password never ends up in a file that could accidentally get committed."
+  },
+  {
+   "n": 65,
+   "section": "sec06",
+   "para": 22,
+   "text": "Please don't be the numpty who pushes an application password to GitHub."
+  },
+  {
+   "n": 66,
+   "section": "sec06",
+   "para": 23,
+   "text": "Finally, and just for sanity, there's `LOG_FILE`."
+  },
+  {
+   "n": 67,
+   "section": "sec06",
+   "para": 23,
+   "text": "Point it at a subfolder of your project."
+  },
+  {
+   "n": 68,
+   "section": "sec06",
+   "para": 23,
+   "text": "Mine goes to `mcp/logs/mcp-production.log`, and when something goes wrong (and it will), that's where you look."
+  },
+  {
+   "n": 69,
+   "section": "sec07",
+   "para": 24,
+   "text": "With that in place, start a Claude Code session in the project."
+  },
+  {
+   "n": 70,
+   "section": "sec07",
+   "para": 24,
+   "text": "The first thing it'll do is ask whether you want to use this MCP server, so say yes."
+  },
+  {
+   "n": 71,
+   "section": "sec07",
+   "para": 25,
+   "text": "You could add this to your global Claude configuration so it's available everywhere, but I don't want that."
+  },
+  {
+   "n": 72,
+   "section": "sec07",
+   "para": 25,
+   "text": "I want the control to sit inside the project, and I only want this server running while I'm actually in the session."
+  },
+  {
+   "n": 73,
+   "section": "sec07",
+   "para": 25,
+   "text": "When I close the session, the connection closes with it, and that's a deliberate choice."
+  },
+  {
+   "n": 74,
+   "section": "sec07",
+   "para": 26,
+   "text": "Now let's try it."
+  },
+  {
+   "n": 75,
+   "section": "sec07",
+   "para": 26,
+   "text": "I'm just going to ask the agent, \"can you see my site over MCP?\""
+  },
+  {
+   "n": 76,
+   "section": "sec07",
+   "para": 27,
+   "text": "And there you go."
+  },
+  {
+   "n": 77,
+   "section": "sec07",
+   "para": 27,
+   "text": "It comes back with information about the site, so I can confirm it's all connected and running."
+  },
+  {
+   "n": 78,
+   "section": "sec07",
+   "para": 27,
+   "text": "Sweet huh!"
+  },
+  {
+   "n": 79,
+   "section": "sec07",
+   "para": 28,
+   "text": "So, to recap what you actually need: a live site somewhere, a user on it with the minimum role, an application password for that user, and the official MCP Adapter plugin installed."
+  },
+  {
+   "n": 80,
+   "section": "sec07",
+   "para": 28,
+   "text": "Then in your local project folder, a `.mcp.json` with the `mcpServers` object and an entry for your connection."
+  },
+  {
+   "n": 81,
+   "section": "sec07",
+   "para": 28,
+   "text": "That's it."
+  },
+  {
+   "n": 82,
+   "section": "sec08",
+   "para": 29,
+   "text": "Before we build anything, I want to see what a slightly more privileged role gives me."
+  },
+  {
+   "n": 83,
+   "section": "sec08",
+   "para": 29,
+   "text": "CasaGees runs on WooCommerce, so I'm going to bump the claude-ai user up from Subscriber to Shop Manager and see what comes back."
+  },
+  {
+   "n": 84,
+   "section": "sec08",
+   "para": 30,
+   "text": "So now I can ask things like how many orders were processed this week, or what orders are coming up, and that kind of works."
+  },
+  {
+   "n": 85,
+   "section": "sec08",
+   "para": 30,
+   "text": "Granted, it's only reading, but it shows the padlocks coming off the jars as the role changes, which is exactly what you'd expect."
+  },
+  {
+   "n": 86,
+   "section": "sec08",
+   "para": 31,
+   "text": "And I'm putting it straight back to Subscriber afterwards, because I only needed it for the test."
+  },
+  {
+   "n": 87,
+   "section": "sec09",
+   "para": 32,
+   "text": "Now, remember what I said at the start about SSH?"
+  },
+  {
+   "n": 88,
+   "section": "sec09",
+   "para": 32,
+   "text": "Before I create an ability, I need to show you that, because I found it out the hard way."
+  },
+  {
+   "n": 89,
+   "section": "sec09",
+   "para": 33,
+   "text": "I'm using Claude Code, and it will be sneaky unless you give it some guard rails."
+  },
+  {
+   "n": 90,
+   "section": "sec09",
+   "para": 33,
+   "text": "In this project I've got config files for pulling and pushing the site, using a Ruby gem called Wordmove."
+  },
+  {
+   "n": 91,
+   "section": "sec09",
+   "para": 33,
+   "text": "While I was testing, I asked the agent to do something it couldn't do over MCP, because I hadn't created the abilities for it yet."
+  },
+  {
+   "n": 92,
+   "section": "sec09",
+   "para": 33,
+   "text": "So it went looking for another way in."
+  },
+  {
+   "n": 93,
+   "section": "sec09",
+   "para": 33,
+   "text": "It found my Wordmove config, used the SSH keys already set up on my machine, and got into the site over SSH."
+  },
+  {
+   "n": 94,
+   "section": "sec09",
+   "para": 33,
+   "text": "It went straight round the sandbox I thought it was in."
+  },
+  {
+   "n": 95,
+   "section": "sec09",
+   "para": 34,
+   "text": "So put the rules in writing."
+  },
+  {
+   "n": 96,
+   "section": "sec09",
+   "para": 34,
+   "text": "Tell the AI, in plain language, that when it's interacting with this site it must only use the MCP connection and the Abilities API, with no SSH and no other route in."
+  },
+  {
+   "n": 97,
+   "section": "sec09",
+   "para": 34,
+   "text": "That goes in your project's `CLAUDE.md`, or your global one."
+  },
+  {
+   "n": 98,
+   "section": "sec09",
+   "para": 35,
+   "text": "Then back it up with actual permissions in the hidden `.claude` folder, in `settings.local.json`, where you can deny things like SSH commands outright."
+  },
+  {
+   "n": 99,
+   "section": "sec09",
+   "para": 35,
+   "text": "Instructions are a request, whereas permissions are a wall, so use both."
+  },
+  {
+   "n": 100,
+   "section": "sec09",
+   "para": 35,
+   "text": "Belt and braces."
+  },
+  {
+   "n": 101,
+   "section": "sec10",
+   "para": 36,
+   "text": "Right."
+  },
+  {
+   "n": 102,
+   "section": "sec10",
+   "para": 36,
+   "text": "We're connected, we've got guard rails, and apart from what WordPress and WooCommerce already expose, we've got nothing of our own in the cupboard."
+  },
+  {
+   "n": 103,
+   "section": "sec10",
+   "para": 36,
+   "text": "So let's set some up."
+  },
+  {
+   "n": 104,
+   "section": "sec10",
+   "para": 37,
+   "text": "On the CasaGees site we run a slot system."
+  },
+  {
+   "n": 105,
+   "section": "sec10",
+   "para": 37,
+   "text": "We open Thursday, Friday and Saturday, from 5pm til 9pm, and we can only do twelve pizzas in any half-hour slot."
+  },
+  {
+   "n": 106,
+   "section": "sec10",
+   "para": 37,
+   "text": "When somebody orders, that slot's capacity drops so we never over-commit, and if there are no slots left, nobody can order."
+  },
+  {
+   "n": 107,
+   "section": "sec10",
+   "para": 37,
+   "text": "That's the guard rail for customers."
+  },
+  {
+   "n": 108,
+   "section": "sec10",
+   "para": 38,
+   "text": "The pain in the backside is that once Saturday evening's slots are done, somebody has to go in and regenerate them for next week, every single week."
+  },
+  {
+   "n": 109,
+   "section": "sec10",
+   "para": 38,
+   "text": "And if we forget, nobody can order."
+  },
+  {
+   "n": 110,
+   "section": "sec10",
+   "para": 39,
+   "text": "So why not expose the slot system to the AI as an ability and let it generate them?"
+  },
+  {
+   "n": 111,
+   "section": "sec10",
+   "para": 39,
+   "text": "I'll register an ability for reading and creating slots, and lock it down with its own capability so only our claude-ai user can call it."
+  },
+  {
+   "n": 112,
+   "section": "sec10",
+   "para": 39,
+   "text": "Then from Claude Cowork I can set up a skill and a schedule."
+  },
+  {
+   "n": 113,
+   "section": "sec10",
+   "para": 39,
+   "text": "I do my shifts at the weekend, and come Sunday morning the slots are already sitting there ready for customers, without me having to think about it."
+  },
+  {
+   "n": 114,
+   "section": "sec10",
+   "para": 40,
+   "text": "Let's build it."
+  },
+  {
+   "n": 115,
+   "section": "sec11",
+   "para": 41,
+   "text": "Okay, so I'm not going to lie to you."
+  },
+  {
+   "n": 116,
+   "section": "sec11",
+   "para": 41,
+   "text": "I got AI to build the ability as well."
+  },
+  {
+   "n": 117,
+   "section": "sec11",
+   "para": 41,
+   "text": "The prompt was something like \"build me an ability using the WP Abilities API to read and update order slots\", and it went off and built it for me."
+  },
+  {
+   "n": 118,
+   "section": "sec11",
+   "para": 41,
+   "text": "So what I'm doing here is walking you through the logic it came up with, which lives in its own separate plugin."
+  },
+  {
+   "n": 119,
+   "section": "sec11",
+   "para": 42,
+   "text": "Let's start with the main plugin file."
+  },
+  {
+   "n": 120,
+   "section": "sec11",
+   "para": 42,
+   "text": "Up top we've got the usual bits defined, the version and the plugin directory."
+  },
+  {
+   "n": 121,
+   "section": "sec11",
+   "para": 42,
+   "text": "Then we register an abilities category."
+  },
+  {
+   "n": 122,
+   "section": "sec11",
+   "para": 42,
+   "text": "Think of that as the shelf in the cupboard."
+  },
+  {
+   "n": 123,
+   "section": "sec11",
+   "para": 42,
+   "text": "Every ability I add to this site from now on goes on that shelf, so as the list grows it stays organised."
+  },
+  {
+   "n": 124,
+   "section": "sec11",
+   "para": 43,
+   "text": "Below that is where the order slots ability gets registered, hooked into the Abilities API."
+  },
+  {
+   "n": 125,
+   "section": "sec11",
+   "para": 43,
+   "text": "The ability itself isn't in this file though."
+  },
+  {
+   "n": 126,
+   "section": "sec11",
+   "para": 43,
+   "text": "It lives in a separate folder called abilities, and we'll have a look at that in a second."
+  },
+  {
+   "n": 127,
+   "section": "sec11",
+   "para": 44,
+   "text": "The last thing in here is a function called `casagees_abilities_can_manage`."
+  },
+  {
+   "n": 128,
+   "section": "sec11",
+   "para": 44,
+   "text": "That's the permission callback."
+  },
+  {
+   "n": 129,
+   "section": "sec11",
+   "para": 44,
+   "text": "It checks whether the current user has a capability called `manage_casagees_slots`, which I've made up for this plugin and given to the claude-ai user and nobody else."
+  },
+  {
+   "n": 130,
+   "section": "sec11",
+   "para": 44,
+   "text": "I added it from the terminal with WP-CLI (`wp user add-cap claude-ai manage_casagees_slots`), so it sits on that one user rather than a whole role."
+  },
+  {
+   "n": 131,
+   "section": "sec11",
+   "para": 44,
+   "text": "Subscribers, customers and even Shop Managers don't have it, so they can't run the ability."
+  },
+  {
+   "n": 132,
+   "section": "sec11",
+   "para": 44,
+   "text": "That's the padlock on the jar, and only one user has the key."
+  },
+  {
+   "n": 133,
+   "section": "sec12",
+   "para": 45,
+   "text": "Now for the ability itself."
+  },
+  {
+   "n": 134,
+   "section": "sec12",
+   "para": 45,
+   "text": "First thing you'll see is an array called the slot schema, which is what we'll hand to the Abilities API when we register."
+  },
+  {
+   "n": 135,
+   "section": "sec12",
+   "para": 46,
+   "text": "Registering an ability works like this."
+  },
+  {
+   "n": 136,
+   "section": "sec12",
+   "para": 46,
+   "text": "You give it a namespaced name, something like `casagees/get-order-slots`, and then an array of arguments."
+  },
+  {
+   "n": 137,
+   "section": "sec12",
+   "para": 46,
+   "text": "Most of them are self-explanatory."
+  },
+  {
+   "n": 138,
+   "section": "sec12",
+   "para": 46,
+   "text": "A label, a description, the category we set up a minute ago."
+  },
+  {
+   "n": 139,
+   "section": "sec12",
+   "para": 46,
+   "text": "Then the two that matter."
+  },
+  {
+   "n": 140,
+   "section": "sec12",
+   "para": 47,
+   "text": "The execute callback is all of the logic the ability can actually do."
+  },
+  {
+   "n": 141,
+   "section": "sec12",
+   "para": 47,
+   "text": "In this case it's interrogating the database, working out what slots exist, and taking in any parameters the AI has passed along so it's got something to reason with."
+  },
+  {
+   "n": 142,
+   "section": "sec12",
+   "para": 47,
+   "text": "I'm not going to go through all of this line by line, because it's a video in its own right."
+  },
+  {
+   "n": 143,
+   "section": "sec12",
+   "para": 48,
+   "text": "The permission callback is the function we just looked at on the other file, `casagees_abilities_can_manage`."
+  },
+  {
+   "n": 144,
+   "section": "sec12",
+   "para": 48,
+   "text": "Same padlock, wired in here."
+  },
+  {
+   "n": 145,
+   "section": "sec12",
+   "para": 49,
+   "text": "Put simply, we've registered two abilities."
+  },
+  {
+   "n": 146,
+   "section": "sec12",
+   "para": 49,
+   "text": "One to get the order slots, and one to create them."
+  },
+  {
+   "n": 147,
+   "section": "sec12",
+   "para": 49,
+   "text": "One goes and fetches the data, the other one writes it."
+  },
+  {
+   "n": 148,
+   "section": "sec12",
+   "para": 50,
+   "text": "Let me give you a quick overview of the get ability, because there are two parts we've not covered yet."
+  },
+  {
+   "n": 149,
+   "section": "sec12",
+   "para": 51,
+   "text": "The input schema is what the ability expects to be asked."
+  },
+  {
+   "n": 150,
+   "section": "sec12",
+   "para": 51,
+   "text": "It's the shape of my question, if you like."
+  },
+  {
+   "n": 151,
+   "section": "sec12",
+   "para": 51,
+   "text": "Things like dates, whether I'm asking about availability, any limits on how much to return."
+  },
+  {
+   "n": 152,
+   "section": "sec12",
+   "para": 51,
+   "text": "If I ask the AI something that doesn't fit the schema, it knows it can't use this jar."
+  },
+  {
+   "n": 153,
+   "section": "sec12",
+   "para": 52,
+   "text": "The output schema is the shape of the answer."
+  },
+  {
+   "n": 154,
+   "section": "sec12",
+   "para": 52,
+   "text": "The AI takes my input, runs the ability, and gets structured data back that it already knows how to read."
+  },
+  {
+   "n": 155,
+   "section": "sec12",
+   "para": 52,
+   "text": "That's really what the Abilities API is about."
+  },
+  {
+   "n": 156,
+   "section": "sec12",
+   "para": 52,
+   "text": "Not just \"here's a function\", but \"here's what it wants, here's what it gives back, and here's who's allowed to call it\"."
+  },
+  {
+   "n": 157,
+   "section": "sec12",
+   "para": 52,
+   "text": "Sweet huh!"
+  },
+  {
+   "n": 158,
+   "section": "sec12",
+   "para": 53,
+   "text": "One more important bit."
+  },
+  {
+   "n": 159,
+   "section": "sec12",
+   "para": 53,
+   "text": "In the ability's meta there's an `mcp` array with `public` set to true."
+  },
+  {
+   "n": 160,
+   "section": "sec12",
+   "para": 53,
+   "text": "Abilities are private by default, so without that the ability is registered but the MCP Adapter won't expose it, and your AI will never see the jar on the shelf."
+  },
+  {
+   "n": 161,
+   "section": "sec12",
+   "para": 53,
+   "text": "Easy one to miss."
+  },
+  {
+   "n": 162,
+   "section": "sec12",
+   "para": 54,
+   "text": "Now, although I did get AI to write this, I do understand what it's done, because I know how the Abilities API works."
+  },
+  {
+   "n": 163,
+   "section": "sec12",
+   "para": 54,
+   "text": "It'll look slightly different for anyone else who writes this logic, or gives it a different prompt, but for my prompt it did a pretty good job and I'm happy to leave it as it is."
+  },
+  {
+   "n": 164,
+   "section": "sec12",
+   "para": 54,
+   "text": "I trust it."
+  },
+  {
+   "n": 165,
+   "section": "sec12",
+   "para": 54,
+   "text": "Like I said, maybe I'll come back and do a proper video on the ability itself, because it deserves one."
+  },
+  {
+   "n": 166,
+   "section": "sec13",
+   "para": 55,
+   "text": "If you want the theory behind all this (what the Abilities API actually is and why the official adapter matters), that's in the video on screen now."
+  },
+  {
+   "n": 167,
+   "section": "sec13",
+   "para": 55,
+   "text": "And if you've already connected an AI to your site, go and check what role it's running as."
+  },
+  {
+   "n": 168,
+   "section": "sec13",
+   "para": 55,
+   "text": "Happy building."
+  }
+ ],
+ "script_cues": [
+  {
+   "after": 0,
+   "section": "sec01",
+   "kind": "bracket",
+   "text": "Talking head"
+  },
+  {
+   "after": 0,
+   "section": "sec01",
+   "kind": "bracket",
+   "text": "MG: quick flash of the terminal where Claude reaches for SSH, blurred, with a red \"ACCESS\" stamp. Hold for two seconds."
+  },
+  {
+   "after": 13,
+   "section": "sec01",
+   "kind": "bracket",
+   "text": "MG: lower third, \"MCP = Model Context Protocol. A standard way for AI to talk to software.\""
+  },
+  {
+   "after": 13,
+   "section": "sec02",
+   "kind": "bracket",
+   "text": "Screen: production site wp-admin, Users > Add New"
+  },
+  {
+   "after": 13,
+   "section": "sec02",
+   "kind": "bracket",
+   "text": "MG: chapter card, \"1. The user\""
+  },
+  {
+   "after": 19,
+   "section": "sec02",
+   "kind": "bracket",
+   "text": "Zoom: role dropdown set to Subscriber"
+  },
+  {
+   "after": 19,
+   "section": "sec03",
+   "kind": "bracket",
+   "text": "Screen: user profile, Application Passwords section"
+  },
+  {
+   "after": 19,
+   "section": "sec03",
+   "kind": "bracket",
+   "text": "MG: chapter card, \"2. The application password\""
+  },
+  {
+   "after": 22,
+   "section": "sec03",
+   "kind": "bracket",
+   "text": "Blur the generated password in post"
+  },
+  {
+   "after": 25,
+   "section": "sec04",
+   "kind": "bracket",
+   "text": "Screen: GitHub, WordPress/mcp-adapter repo, then terminal"
+  },
+  {
+   "after": 25,
+   "section": "sec04",
+   "kind": "bracket",
+   "text": "MG: chapter card, \"3. The MCP Adapter\""
+  },
+  {
+   "after": 28,
+   "section": "sec04",
+   "kind": "bracket",
+   "text": "Screen: GitHub Releases page, download mcp-adapter.zip"
+  },
+  {
+   "after": 31,
+   "section": "sec04",
+   "kind": "bracket",
+   "text": "MG: three icons appear one at a time (user, key, plugin), each greyed out"
+  },
+  {
+   "after": 34,
+   "section": "sec05",
+   "kind": "bracket",
+   "text": "Talking head"
+  },
+  {
+   "after": 34,
+   "section": "sec05",
+   "kind": "bracket",
+   "text": "MG: illustrated kitchen. A hatch in the wall, a cupboard of jars behind it, some jars padlocked. Build it up as the lines land."
+  },
+  {
+   "after": 43,
+   "section": "sec05",
+   "kind": "bracket",
+   "text": "MG: a key appears on the chef's side of the hatch, labelled \".mcp.json\""
+  },
+  {
+   "after": 46,
+   "section": "sec06",
+   "kind": "bracket",
+   "text": "Screen: editor, project root, new file .mcp.json"
+  },
+  {
+   "after": 46,
+   "section": "sec06",
+   "kind": "bracket",
+   "text": "MG: chapter card, \"4. The config file\""
+  },
+  {
+   "after": 53,
+   "section": "sec06",
+   "kind": "bracket",
+   "text": "Type each line as it's described. Highlight each key as it's mentioned."
+  },
+  {
+   "after": 56,
+   "section": "sec06",
+   "kind": "bracket",
+   "text": "MG: simple flow, laptop > \"mcp-wordpress-remote\" > internet > site with adapter"
+  },
+  {
+   "after": 61,
+   "section": "sec06",
+   "kind": "bracket",
+   "text": "Screen: the finished .mcp.json with ${} variables"
+  },
+  {
+   "after": 65,
+   "section": "sec06",
+   "kind": "bracket",
+   "text": "MG: red warning strip, \"Never commit real passwords. Add .mcp.json to .gitignore if in doubt.\""
+  },
+  {
+   "after": 68,
+   "section": "sec06",
+   "kind": "code",
+   "text": "{\n  \"mcpServers\": {\n    \"claude-ai\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@automattic/mcp-wordpress-remote@latest\"],\n      \"env\": {\n        \"WP_API_URL\": \"https://your-site.com/wp-json/mcp/mcp-adapter-default-server\",\n        \"WP_API_USERNAME\": \"${WP_API_USERNAME}\",\n        \"WP_API_PASSWORD\": \"${WP_API_PASSWORD}\",\n        \"LOG_FILE\": \"./mcp/logs/mcp-production.log\"\n      }\n    }\n  }\n}"
+  },
+  {
+   "after": 68,
+   "section": "sec06",
+   "kind": "bracket",
+   "text": "Hold the finished file on screen for at least four seconds so people can pause and copy it"
+  },
+  {
+   "after": 68,
+   "section": "sec07",
+   "kind": "bracket",
+   "text": "Screen: terminal, start Claude Code in the project"
+  },
+  {
+   "after": 68,
+   "section": "sec07",
+   "kind": "bracket",
+   "text": "MG: chapter card, \"5. Connect\""
+  },
+  {
+   "after": 75,
+   "section": "sec07",
+   "kind": "bracket",
+   "text": "Screen: Claude's response with site info. Zoom on the site name."
+  },
+  {
+   "after": 78,
+   "section": "sec07",
+   "kind": "bracket",
+   "text": "MG: checklist builds on screen as each item is read"
+  },
+  {
+   "after": 81,
+   "section": "sec08",
+   "kind": "bracket",
+   "text": "Screen: change claude-ai user role to Shop Manager"
+  },
+  {
+   "after": 83,
+   "section": "sec08",
+   "kind": "bracket",
+   "text": "Screen: asking Claude about this week's orders and upcoming orders"
+  },
+  {
+   "after": 83,
+   "section": "sec08",
+   "kind": "bracket",
+   "text": "MG: back to the kitchen. Two padlocks drop off the jars."
+  },
+  {
+   "after": 85,
+   "section": "sec08",
+   "kind": "bracket",
+   "text": "Screen: switch the role back to Subscriber"
+  },
+  {
+   "after": 86,
+   "section": "sec09",
+   "kind": "bracket",
+   "text": "Talking head, serious for a second"
+  },
+  {
+   "after": 94,
+   "section": "sec09",
+   "kind": "bracket",
+   "text": "Screen: the real terminal transcript of the SSH attempt, key details blurred"
+  },
+  {
+   "after": 94,
+   "section": "sec09",
+   "kind": "bracket",
+   "text": "MG: the kitchen again. The chef ignores the hatch and climbs in through the window."
+  },
+  {
+   "after": 97,
+   "section": "sec09",
+   "kind": "bracket",
+   "text": "Screen: CLAUDE.md with the rule"
+  },
+  {
+   "after": 100,
+   "section": "sec09",
+   "kind": "bracket",
+   "text": "Screen: .claude/settings.local.json with the deny rules"
+  },
+  {
+   "after": 100,
+   "section": "sec09",
+   "kind": "bracket",
+   "text": "MG: two layers, \"CLAUDE.md = asks nicely\", \"settings deny = actually stops it\""
+  },
+  {
+   "after": 100,
+   "section": "sec10",
+   "kind": "bracket",
+   "text": "Screen: slot management in the CasaGees admin"
+  },
+  {
+   "after": 109,
+   "section": "sec10",
+   "kind": "bracket",
+   "text": "MG: calendar, Thursday to Saturday columns filling up, then going blank on Sunday with a \"?\""
+  },
+  {
+   "after": 113,
+   "section": "sec10",
+   "kind": "bracket",
+   "text": "MG: the same calendar refilling itself on Sunday morning"
+  },
+  {
+   "after": 113,
+   "section": "sec10",
+   "kind": "bracket",
+   "text": "Cut to building the ability"
+  },
+  {
+   "after": 114,
+   "section": "sec10",
+   "kind": "bracket",
+   "text": "Screen: the abilities plugin open in the editor, main plugin file"
+  },
+  {
+   "after": 132,
+   "section": "sec11",
+   "kind": "bracket",
+   "text": "Screen: the abilities folder, order slots ability file"
+  },
+  {
+   "after": 147,
+   "section": "sec12",
+   "kind": "bracket",
+   "text": "Screen: input_schema and output_schema in the get ability"
+  },
+  {
+   "after": 157,
+   "section": "sec12",
+   "kind": "bracket",
+   "text": "Screen: the meta array, `'mcp' => array( 'public' => true )` highlighted"
+  },
+  {
+   "after": 161,
+   "section": "sec12",
+   "kind": "bracket",
+   "text": "Talking head"
+  },
+  {
+   "after": 165,
+   "section": "sec13",
+   "kind": "bracket",
+   "text": "Talking head, last 20 seconds, end screen elements on the right"
+  }
+ ]
+}

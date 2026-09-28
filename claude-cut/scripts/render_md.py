@@ -91,10 +91,7 @@ def render_paper_edit(pe: dict, script: Script, src: Path) -> str:
         if beat["section"] != section:
             section = beat["section"]
             meta = sec_meta.get(section, {})
-            head = f"### {sec_titles.get(section, section)}"
-            if meta.get("chapter"):
-                head += f" (chapter: {meta['chapter']})"
-            out += ["", head, ""]
+            out += ["", f"### {sec_titles.get(section, section)}", ""]
             if meta.get("purpose"):
                 out += [meta["purpose"], ""]
             out += ["| ID | Est. TC | Spoken | On screen | Transition | Notes |",
@@ -107,6 +104,8 @@ def render_paper_edit(pe: dict, script: Script, src: Path) -> str:
         a, b = beat["sentences"]
         screen = [cell(beat["visual"])] + [cell(describe_cue(c)) for c in cues]
         notes_cell = []
+        if beat.get("chapter"):
+            notes_cell.append(f"**Chapter: {cell(beat['chapter'])}**")
         if beat.get("key_point"):
             notes_cell.append("**Key point.**")
         for k in ("pace", "notes"):

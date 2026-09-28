@@ -1,0 +1,2241 @@
+{
+ "schema": "claude-cut/paper-edit@1",
+ "created": "2026-09-28T15:15:36Z",
+ "inputs": {
+  "script": {
+   "path": "mcp-setup.script.json",
+   "sha256": "2b69b4b4c00a943a72dd238e4a7f4b3b145b5127635795c36e6968e0548c45a1"
+  }
+ },
+ "title": "Connect Claude Code to WordPress with MCP (Then Lock It Down)",
+ "notes": {
+  "tone": "Practical and personal, a British YouTuber talking to WordPress developers. Clean screen recordings at readable zoom (code at 1080p must be legible). Light, low music bed under the walkthroughs; drop it out for the SSH story (b35 to b40) and bring it back at b41. Captions on. Recurring graphics: numbered chapter cards for steps 1 to 5 in one style, and the kitchen illustration (hatch, jars, padlocks, key) built once and reused in b15 to b18, b33 and b37. On-screen text in British English, no em dashes. Zooms are simple punch-ins, not animated swoops.",
+  "before_timeline": "Fact-check flags from the script: (1) Check what discover-abilities actually lists before filming so 'apart from what WordPress and WooCommerce already expose' (sentence 102) is honest. (2) Confirm mcp-adapter.zip on the Releases page is still the latest release on the day (v0.6.1 at time of writing). (3) '${VAR}' expansion needs the variables set in the shell that launches Claude Code; the on-screen note in b26 covers this, keep it. (4) The Shop Manager order answers (b32) must visibly come through MCP tool calls, not a fallback route. (5) The SSH transcript (b36) must be the real one, on screen. (6) 'Being assessed for the plugin directory' (sentence 27) is hearsay unless you have a source; link one if you can. Plus from this edit: script cue 9 says 'then terminal' but v2 installs from the Releases zip, so the terminal is only needed for the optional build aside in b12. Script cue 20 asks for the finished file at sentence 61, before LOG_FILE is described in sentence 66, so the finished file is held in b26 instead. Sentence 98 says permissions can deny SSH commands outright; Wordmove runs ssh itself, so the on-screen deny list in b39 should cover wordmove, scp and rsync as well as ssh or the claim is weaker than it sounds. Check 'Claude Cowork' (sentence 112) is the product name you mean.",
+  "blur_list": [
+   "b05: new user's password field and email address",
+   "b08: the generated application password, for as long as it's on screen",
+   "b01 and b36: the SSH terminal transcript: hostnames, IP addresses, SSH usernames, ports, key paths, Movefile details",
+   "b32: customer names, addresses, phone numbers and emails in the order replies",
+   "b42: any customer names on booked slots in the CasaGees admin",
+   "b51: server hostname and username in the WP-CLI shell prompt",
+   "Anywhere: real values of WP_API_USERNAME and WP_API_PASSWORD if they ever appear (e.g. in a shell profile or env output)"
+  ],
+  "description": "Paste the finished .mcp.json from script cue 22 into the YouTube description (or link a Gist), as the pinned comment promises. Chapter timestamps come from the beat chapters.",
+  "end_screen": "Last 20 seconds (b62): presenter framed left, end screen elements on the right, the main one being the anchor video on the Abilities API theory.",
+  "split_option": "The audience brief says the ability build is optional detail. b47 to b61 (sec11 and sec12) can be lifted out as its own video, with b46 'Let's build it.' as the cut point, if the runtime needs trimming."
+ },
+ "sections": [
+  {
+   "id": "sec01",
+   "purpose": "Hook with the SSH breakout, set up the gap in the official docs, and define MCP in one line. Fast and personal."
+  },
+  {
+   "id": "sec02",
+   "purpose": "Step one: create a dedicated user on the live site with the lowest role. Practical, with the 'don't give it admin' warning landing clearly."
+  },
+  {
+   "id": "sec03",
+   "purpose": "Step two: generate an application password for that user. Practical; blur the password."
+  },
+  {
+   "id": "sec04",
+   "purpose": "Step three: install the MCP Adapter from GitHub Releases, then show that none of the pieces does anything on its own yet."
+  },
+  {
+   "id": "sec05",
+   "purpose": "The insight: the kitchen analogy (hatch, jars, padlocks, key). Slower and illustrated; this is what people should remember."
+  },
+  {
+   "id": "sec06",
+   "purpose": "Step four: build .mcp.json line by line with environment variables. The most rewatched section, so every line must be readable and the finished file held."
+  },
+  {
+   "id": "sec07",
+   "purpose": "Step five: start Claude Code, prove the connection, and recap the checklist. Payoff."
+  },
+  {
+   "id": "sec08",
+   "purpose": "Show that the role controls what the AI can reach, then put the role back. Quick demo."
+  },
+  {
+   "id": "sec09",
+   "purpose": "Pay off the cold open: the SSH story, then CLAUDE.md plus permissions. Serious, no music until it's done."
+  },
+  {
+   "id": "sec10",
+   "purpose": "The real use case: CasaGees delivery slots and why an ability fixes the weekly chore. Lighter again."
+  },
+  {
+   "id": "sec11",
+   "purpose": "Honest framing that AI wrote the ability, then the main plugin file and the permission callback. Could be split into its own video."
+  },
+  {
+   "id": "sec12",
+   "purpose": "Tour of the ability file: registration, callbacks, schemas and the easy-to-miss mcp public flag."
+  },
+  {
+   "id": "sec13",
+   "purpose": "Sign-off with the end screen pointing to the anchor video."
+  }
+ ],
+ "beats": [
+  {
+   "id": "b01",
+   "section": "sec01",
+   "sentences": [
+    1,
+    2
+   ],
+   "chapter": "Claude Code got in over SSH",
+   "visual": "A, medium close-up, straight to lens after a two-second blurred terminal flash",
+   "transition_in": "graphic sting (cold open), then hard cut to camera",
+   "pace": "Fast and punchy. Confessional hook, no preamble.",
+   "key_point": true,
+   "notes": "The flash is a tease only: the real transcript is shown properly in b36. Use the same terminal and the same blur treatment in both so the payoff reads.",
+   "cues": [
+    {
+     "id": "b01.mg1",
+     "kind": "mg",
+     "placement": "insert_before",
+     "layer": "full",
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Cold-open flash: a still of the real SSH terminal transcript from b36, blurred so nothing is legible, a quick push-in, then a red rubber-stamp 'ACCESS' slams on at a slight angle. No other text.",
+     "script_cue": 1
+    },
+    {
+     "id": "b01.sfx1",
+     "kind": "sfx",
+     "placement": "overlay",
+     "anchor": {
+      "cue": "b01.mg1"
+     },
+     "brief": "Heavy rubber-stamp thud as 'ACCESS' lands."
+    },
+    {
+     "id": "b01.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 1,
+      "phrase": "over SSH"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Small caption, lower left, in the stamp red: 'Over SSH. Not MCP.'"
+    }
+   ]
+  },
+  {
+   "id": "b02",
+   "section": "sec01",
+   "sentences": [
+    3,
+    7
+   ],
+   "visual": "A, medium close-up, with a short cutaway to the Studio app's built-in AI chat",
+   "transition_in": "hard cut",
+   "pace": "Conversational and a bit wry. Let 'Fine.' land as a shrug; don't clip it tight.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b02.sr1",
+     "kind": "sr",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 5,
+      "phrase": "Studio app"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Cutaway: the WordPress Studio desktop app with a local site open and the built-in AI chat panel answering a short prompt."
+    }
+   ]
+  },
+  {
+   "id": "b03",
+   "section": "sec01",
+   "sentences": [
+    8,
+    11
+   ],
+   "visual": "SR: WordPress/mcp-adapter repo README on GitHub, back to camera for 'So that's what this video is.'",
+   "transition_in": "hard cut",
+   "pace": "Steady, setting up the problem. Slight lift on sentence 11.",
+   "key_point": false,
+   "notes": "Scroll the README slowly to the connection section, then cut back to A for sentence 11.",
+   "cues": [
+    {
+     "id": "b03.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "duration": {
+      "to_phrase": "how to actually build the config file"
+     },
+     "brief": "GitHub, github.com/WordPress/mcp-adapter, README visible. Slow scroll down to the section on connecting over MCP. Browser chrome clean, no other tabs."
+    }
+   ]
+  },
+  {
+   "id": "b04",
+   "section": "sec01",
+   "sentences": [
+    12,
+    13
+   ],
+   "chapter": "What MCP is",
+   "visual": "A, medium close-up, lower third defines MCP",
+   "transition_in": "hard cut",
+   "pace": "Clear and plain. A touch slower on the definition, then a wink on 'back pocket'.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b04.lt1",
+     "kind": "lt",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 12,
+      "phrase": "Model Context Protocol"
+     },
+     "duration": {
+      "seconds": 5
+     },
+     "brief": "Lower third: 'MCP = Model Context Protocol' on line one, 'A standard way for AI to talk to software' on line two.",
+     "script_cue": 2
+    }
+   ]
+  },
+  {
+   "id": "b05",
+   "section": "sec02",
+   "sentences": [
+    14,
+    16
+   ],
+   "chapter": "Step 1: a Subscriber user",
+   "visual": "SR: production wp-admin, Users > Add New, creating the claude-ai user",
+   "transition_in": "hard cut",
+   "pace": "Brisk walkthrough. Match the clicks to the words.",
+   "key_point": false,
+   "notes": "Record on the real production site. Make it obvious it's the live site (the admin bar site name) without showing the full admin URL if that's sensitive.",
+   "cues": [
+    {
+     "id": "b05.chapter1",
+     "kind": "chapter",
+     "placement": "insert_before",
+     "layer": "full",
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Chapter card, full frame: '1. The user'. House chapter style: step number large, title beneath, quick build in and out.",
+     "script_cue": 4
+    },
+    {
+     "id": "b05.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Production site wp-admin: Users > Add New. Type the username 'claude-ai', an email, and a generated password.",
+     "script_cue": 3
+    },
+    {
+     "id": "b05.blur1",
+     "kind": "blur",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 16,
+      "phrase": "given it a password"
+     },
+     "duration": "to_beat_end",
+     "brief": "Blur the password field and the user's email address."
+    }
+   ]
+  },
+  {
+   "id": "b06",
+   "section": "sec02",
+   "sentences": [
+    17,
+    18
+   ],
+   "visual": "SR: same Add New screen, Role dropdown set to Subscriber",
+   "transition_in": "hard cut",
+   "pace": "Slow down and land it. This is the rule the whole video hangs on.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b06.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same Add New form scrolled to Role. Open the dropdown and pick Subscriber, then click Add New User."
+    },
+    {
+     "id": "b06.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 18,
+      "phrase": "Subscriber"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on the Role dropdown showing 'Subscriber'.",
+     "script_cue": 5
+    },
+    {
+     "id": "b06.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "cue": "b06.zoom1"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Highlight box around the Role field, caption 'Lowest possible role'."
+    }
+   ]
+  },
+  {
+   "id": "b07",
+   "section": "sec02",
+   "sentences": [
+    19,
+    19
+   ],
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Firm, a little pointed. A warning, not a rant.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b07.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 19,
+      "phrase": "hand an AI admin"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Caption: 'Don't hand an AI your admin account.'"
+    }
+   ]
+  },
+  {
+   "id": "b08",
+   "section": "sec03",
+   "sentences": [
+    20,
+    22
+   ],
+   "chapter": "Step 2: an application password",
+   "visual": "SR: claude-ai user profile, Application Passwords section, generate a password",
+   "transition_in": "hard cut",
+   "pace": "Walkthrough pace. Brief pause on 'you won't see it again'.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b08.chapter1",
+     "kind": "chapter",
+     "placement": "insert_before",
+     "layer": "full",
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Chapter card, full frame: '2. The application password'. House chapter style: step number large, title beneath, quick build in and out.",
+     "script_cue": 7
+    },
+    {
+     "id": "b08.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Users > claude-ai > Edit. Scroll to Application Passwords, type a name (e.g. 'Claude Code'), click Add New Application Password, and the generated password appears.",
+     "script_cue": 6
+    },
+    {
+     "id": "b08.lt1",
+     "kind": "lt",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 21,
+      "phrase": "application password"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Lower third: 'Application password' on line one, 'A separate credential for software, not your login' on line two."
+    },
+    {
+     "id": "b08.blur1",
+     "kind": "blur",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 22,
+      "phrase": "WordPress generates it for you"
+     },
+     "duration": "to_beat_end",
+     "brief": "Blur the generated application password for as long as it's on screen.",
+     "script_cue": 8
+    }
+   ]
+  },
+  {
+   "id": "b09",
+   "section": "sec03",
+   "sentences": [
+    23,
+    25
+   ],
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Light. 'They just sit there' is dry; give it a beat before the cut.",
+   "key_point": false,
+   "cues": []
+  },
+  {
+   "id": "b10",
+   "section": "sec04",
+   "sentences": [
+    26,
+    28
+   ],
+   "chapter": "Step 3: install the MCP Adapter",
+   "visual": "SR: GitHub, WordPress/mcp-adapter repo home page",
+   "transition_in": "hard cut",
+   "pace": "Brisk. Keep the plugin-directory aside light.",
+   "key_point": false,
+   "notes": "Script cue 9 says 'then terminal', but v2 no longer clones the repo. Only use a terminal shot if sentence 31's optional build route needs one (see b12).",
+   "cues": [
+    {
+     "id": "b10.chapter1",
+     "kind": "chapter",
+     "placement": "insert_before",
+     "layer": "full",
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Chapter card, full frame: '3. The MCP Adapter'. House chapter style: step number large, title beneath, quick build in and out.",
+     "script_cue": 10
+    },
+    {
+     "id": "b10.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "github.com/WordPress/mcp-adapter repo home page. Hold on the 'WordPress' org name and the 'mcp-adapter' repo name in the header.",
+     "script_cue": 9
+    },
+    {
+     "id": "b10.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 27,
+      "phrase": "doesn't live there"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Caption: 'Not in the plugin directory (yet). Link in the description.'"
+    }
+   ]
+  },
+  {
+   "id": "b11",
+   "section": "sec04",
+   "sentences": [
+    29,
+    29
+   ],
+   "visual": "SR: GitHub Releases page, downloading mcp-adapter.zip",
+   "transition_in": "hard cut",
+   "pace": "Brisk.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b11.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Releases page of WordPress/mcp-adapter: latest tagged release, Assets expanded, click 'mcp-adapter.zip' to download.",
+     "script_cue": 11
+    },
+    {
+     "id": "b11.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 29,
+      "phrase": "mcp-adapter.zip"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on the 'mcp-adapter.zip' asset link."
+    }
+   ]
+  },
+  {
+   "id": "b12",
+   "section": "sec04",
+   "sentences": [
+    30,
+    31
+   ],
+   "visual": "SR: production wp-admin, Plugins > Add New > Upload Plugin, install and activate",
+   "transition_in": "hard cut",
+   "pace": "Brisk. Sentence 31 is an aside; don't cut away for it unless you have the terminal shot.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b12.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Production wp-admin: Plugins > Add New > Upload Plugin, choose mcp-adapter.zip, Install Now, then Activate Plugin. End on the plugins list with MCP Adapter active.",
+     "script_cue": 11
+    },
+    {
+     "id": "b12.sr2",
+     "kind": "sr",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 31,
+      "phrase": "clone the repo"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Optional cutaway: terminal showing 'git clone https://github.com/WordPress/mcp-adapter' followed by the build command. Drop this if it wasn't recorded.",
+     "script_cue": 9
+    }
+   ]
+  },
+  {
+   "id": "b13",
+   "section": "sec04",
+   "sentences": [
+    32,
+    34
+   ],
+   "visual": "MG: three greyed-out icons (user, key, plugin) appear one at a time",
+   "transition_in": "hard cut",
+   "pace": "Measured, building anticipation towards the analogy.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b13.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Three flat icons appear left to right, one at a time, each greyed out: a user silhouette (on 'A user with an application password'), a key (same line), a plugin (on 'having the adapter installed'). Labels beneath: 'User', 'App password', 'MCP Adapter'. On 'put them together' they nudge towards each other but stay grey.",
+     "script_cue": 12
+    }
+   ]
+  },
+  {
+   "id": "b14",
+   "section": "sec05",
+   "sentences": [
+    35,
+    35
+   ],
+   "chapter": "The hatch and the cupboard",
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Warm, self-deprecating. The chef aside is a genuine laugh line.",
+   "key_point": false,
+   "cues": []
+  },
+  {
+   "id": "b15",
+   "section": "sec05",
+   "sentences": [
+    36,
+    37
+   ],
+   "visual": "MG: illustrated kitchen wall with a serving hatch",
+   "transition_in": "hard cut",
+   "pace": "Unhurried. Let each element draw on as it's named.",
+   "key_point": false,
+   "notes": "Kitchen illustration builds across b15 to b18 and returns in b33 and b37. Build it as one master file so the later beats reuse the same art.",
+   "cues": [
+    {
+     "id": "b15.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Illustrated kitchen (flat style). A wall draws on, then a serving hatch in it; label on the hatch: 'MCP server'.",
+     "script_cue": [
+      13,
+      14
+     ]
+    }
+   ]
+  },
+  {
+   "id": "b16",
+   "section": "sec05",
+   "sentences": [
+    38,
+    40
+   ],
+   "visual": "MG: kitchen, the cupboard of jars behind the hatch",
+   "transition_in": "hard cut",
+   "pace": "Unhurried, explanatory.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b16.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Same kitchen. Behind the hatch a cupboard of jars builds, shelf by shelf. Cupboard label: 'Abilities API'. On sentence 39 three jars get small labels: 'Create a post', 'Look up an order', 'Regenerate slots'. On sentence 40 an empty shelf space pulses gently.",
+     "script_cue": 14
+    },
+    {
+     "id": "b16.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 40,
+      "phrase": "Nothing is in the cupboard"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Caption: 'Not registered = not in the cupboard.'"
+    }
+   ]
+  },
+  {
+   "id": "b17",
+   "section": "sec05",
+   "sentences": [
+    41,
+    43
+   ],
+   "visual": "MG: kitchen, padlocks appear on some jars",
+   "transition_in": "hard cut",
+   "pace": "Clear, with a small emphasis on 'the whole point'.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b17.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Same kitchen. Padlocks click onto about two thirds of the jars. A small 'Subscriber' tag by the hatch reaches only the open jars; swap to an 'Administrator' tag and most padlocks spring open, then swap back.",
+     "script_cue": 14
+    },
+    {
+     "id": "b17.sfx1",
+     "kind": "sfx",
+     "placement": "overlay",
+     "anchor": {
+      "cue": "b17.mg1"
+     },
+     "brief": "Small padlock clicks, one per padlock, quiet."
+    },
+    {
+     "id": "b17.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 43,
+      "phrase": "the whole point"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Caption: 'Lowest role = fewest open jars.'"
+    }
+   ]
+  },
+  {
+   "id": "b18",
+   "section": "sec05",
+   "sentences": [
+    44,
+    46
+   ],
+   "visual": "MG: kitchen, a key labelled .mcp.json on the chef's side of the hatch",
+   "transition_in": "hard cut",
+   "pace": "Slow down. This is the insight of the video; give it room.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b18.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Same kitchen. On sentence 44 the plugin icon and the user icon from b13 appear by the hatch and are crossed out in turn. On sentence 45 a key appears on the chef's side of the hatch, labelled '.mcp.json'. On sentence 46 the key turns and the hatch opens onto the shelves.",
+     "script_cue": 15
+    },
+    {
+     "id": "b18.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 45,
+      "phrase": "The key is the MCP configuration"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Caption: 'The key = the MCP config on your machine.'"
+    }
+   ]
+  },
+  {
+   "id": "b19",
+   "section": "sec06",
+   "sentences": [
+    47,
+    49
+   ],
+   "chapter": "Step 4: the .mcp.json config file",
+   "visual": "SR: code editor, project root, new file .mcp.json, then the adapter docs",
+   "transition_in": "hard cut",
+   "pace": "Practical, walkthrough pace.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b19.chapter1",
+     "kind": "chapter",
+     "placement": "insert_before",
+     "layer": "full",
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Chapter card, full frame: '4. The config file'. House chapter style: step number large, title beneath, quick build in and out.",
+     "script_cue": 17
+    },
+    {
+     "id": "b19.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Code editor, project root in the file tree. New file, name it '.mcp.json', empty editor pane open.",
+     "script_cue": 16
+    },
+    {
+     "id": "b19.sr2",
+     "kind": "sr",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 49,
+      "phrase": "From the MCP adapter GitHub docs"
+     },
+     "duration": "to_beat_end",
+     "brief": "Cutaway: the MCP Adapter GitHub docs page with the example config object highlighted and copied."
+    }
+   ]
+  },
+  {
+   "id": "b20",
+   "section": "sec06",
+   "sentences": [
+    50,
+    53
+   ],
+   "visual": "SR: editor, typing the mcpServers object and the claude-ai entry",
+   "transition_in": "hard cut",
+   "pace": "Steady. Type in step with the words.",
+   "key_point": false,
+   "notes": "Script cue 18 applies to b20 to b26: type each line as it's described, and highlight each key as it's mentioned.",
+   "cues": [
+    {
+     "id": "b20.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor, .mcp.json: type '{', then '\"mcpServers\": {', then '\"claude-ai\": {' inside it. Only type each line as it's described.",
+     "script_cue": [
+      18,
+      22
+     ]
+    },
+    {
+     "id": "b20.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 50,
+      "phrase": "mcpServers"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Highlight the 'mcpServers' key.",
+     "script_cue": 18
+    },
+    {
+     "id": "b20.callout2",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 53,
+      "phrase": "claude-ai"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Highlight the 'claude-ai' key.",
+     "script_cue": 18
+    }
+   ]
+  },
+  {
+   "id": "b21",
+   "section": "sec06",
+   "sentences": [
+    54,
+    55
+   ],
+   "visual": "SR: editor, typing command and args",
+   "transition_in": "hard cut",
+   "pace": "Steady.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b21.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor: type '\"command\": \"npx\",' then '\"args\": [\"-y\", \"@automattic/mcp-wordpress-remote@latest\"],'.",
+     "script_cue": [
+      18,
+      22
+     ]
+    },
+    {
+     "id": "b21.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 55,
+      "phrase": "command"
+     },
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Highlight the 'command' line.",
+     "script_cue": 18
+    },
+    {
+     "id": "b21.callout2",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 55,
+      "phrase": "args"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Highlight the 'args' line.",
+     "script_cue": 18
+    }
+   ]
+  },
+  {
+   "id": "b22",
+   "section": "sec06",
+   "sentences": [
+    56,
+    56
+   ],
+   "visual": "MG: simple flow, laptop to mcp-wordpress-remote to the internet to the site",
+   "transition_in": "hard cut",
+   "pace": "Quick and clear.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b22.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Left-to-right flow diagram: laptop icon > box 'mcp-wordpress-remote' > cloud 'internet' > website icon with a small 'MCP Adapter' badge. Arrows draw on in order.",
+     "script_cue": 19
+    }
+   ]
+  },
+  {
+   "id": "b23",
+   "section": "sec06",
+   "sentences": [
+    57,
+    59
+   ],
+   "visual": "SR: editor, typing the env object and WP_API_URL",
+   "transition_in": "hard cut",
+   "pace": "Steady. Slight emphasis on the route.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b23.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor: type '\"env\": {' then '\"WP_API_URL\": \"https://your-site.com/wp-json/mcp/mcp-adapter-default-server\",'.",
+     "script_cue": [
+      18,
+      22
+     ]
+    },
+    {
+     "id": "b23.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 58,
+      "phrase": "mcp-adapter-default-server"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Highlight '/wp-json/mcp/mcp-adapter-default-server' in the URL.",
+     "script_cue": 18
+    }
+   ]
+  },
+  {
+   "id": "b24",
+   "section": "sec06",
+   "sentences": [
+    60,
+    60
+   ],
+   "visual": "A, medium close-up, with a cutaway to the CasaGees site",
+   "transition_in": "hard cut",
+   "pace": "Relaxed aside, a smile on 'side hustle'.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b24.sr1",
+     "kind": "sr",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 60,
+      "phrase": "CasaGees site"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Cutaway: the CasaGees front page in a browser, slow scroll past the pizzas."
+    }
+   ]
+  },
+  {
+   "id": "b25",
+   "section": "sec06",
+   "sentences": [
+    61,
+    65
+   ],
+   "visual": "SR: editor, username and password lines using ${} variables",
+   "transition_in": "hard cut",
+   "pace": "Steady, then a firmer, jokey warning on 'numpty'.",
+   "key_point": true,
+   "notes": "Cue 20 asks for the finished file here, but LOG_FILE isn't described until b26. Show the file up to the password line here and complete it in b26.",
+   "cues": [
+    {
+     "id": "b25.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor: type '\"WP_API_USERNAME\": \"${WP_API_USERNAME}\",' and '\"WP_API_PASSWORD\": \"${WP_API_PASSWORD}\",'. Real values never appear.",
+     "script_cue": [
+      18,
+      20,
+      22
+     ]
+    },
+    {
+     "id": "b25.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 63,
+      "phrase": "dollar sign"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Highlight both '${...}' values.",
+     "script_cue": 18
+    },
+    {
+     "id": "b25.mg1",
+     "kind": "mg",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 65,
+      "phrase": "numpty"
+     },
+     "duration": {
+      "seconds": 5
+     },
+     "brief": "Red warning strip across the bottom: 'Never commit real passwords. Add .mcp.json to .gitignore if in doubt.'",
+     "script_cue": 21
+    }
+   ]
+  },
+  {
+   "id": "b26",
+   "section": "sec06",
+   "sentences": [
+    66,
+    68
+   ],
+   "visual": "SR: editor, LOG_FILE line, then the finished .mcp.json held on screen",
+   "transition_in": "hard cut",
+   "pace": "Wind down to a clean finish; the hold is silent.",
+   "key_point": false,
+   "notes": "Hold the finished file for four seconds so people can pause and copy it. The JSON also goes in the description.",
+   "cues": [
+    {
+     "id": "b26.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor: type '\"LOG_FILE\": \"./mcp/logs/mcp-production.log\"' and close the braces. Formatted, readable at 1080p.",
+     "script_cue": [
+      18,
+      22
+     ]
+    },
+    {
+     "id": "b26.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 66,
+      "phrase": "LOG_FILE"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Highlight the 'LOG_FILE' line.",
+     "script_cue": 18
+    },
+    {
+     "id": "b26.sr2",
+     "kind": "sr",
+     "placement": "insert_after",
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Hold on the finished .mcp.json, whole file visible, large font, nothing highlighted: { \"mcpServers\": { \"claude-ai\": { \"command\": \"npx\", \"args\": [\"-y\", \"@automattic/mcp-wordpress-remote@latest\"], \"env\": { \"WP_API_URL\": \"https://your-site.com/wp-json/mcp/mcp-adapter-default-server\", \"WP_API_USERNAME\": \"${WP_API_USERNAME}\", \"WP_API_PASSWORD\": \"${WP_API_PASSWORD}\", \"LOG_FILE\": \"./mcp/logs/mcp-production.log\" } } } } (script cue 22 has the exact layout).",
+     "script_cue": [
+      20,
+      22,
+      23
+     ]
+    },
+    {
+     "id": "b26.callout2",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "cue": "b26.sr2"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Small note at the bottom of the hold: 'Set WP_API_USERNAME and WP_API_PASSWORD in the shell that launches Claude Code.'"
+    }
+   ]
+  },
+  {
+   "id": "b27",
+   "section": "sec07",
+   "sentences": [
+    69,
+    70
+   ],
+   "chapter": "Step 5: connect Claude Code",
+   "visual": "SR: terminal, starting Claude Code in the project and approving the MCP server",
+   "transition_in": "hard cut",
+   "pace": "Brisk.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b27.chapter1",
+     "kind": "chapter",
+     "placement": "insert_before",
+     "layer": "full",
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Chapter card, full frame: '5. Connect'. House chapter style: step number large, title beneath, quick build in and out.",
+     "script_cue": 25
+    },
+    {
+     "id": "b27.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Terminal in the project folder: type 'claude', Enter. Claude Code starts and asks whether to use the claude-ai MCP server from .mcp.json; choose yes.",
+     "script_cue": 24
+    }
+   ]
+  },
+  {
+   "id": "b28",
+   "section": "sec07",
+   "sentences": [
+    71,
+    73
+   ],
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Considered. This is a deliberate choice, say it like one.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b28.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 73,
+      "phrase": "the connection closes with it"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Caption: 'Project only. Closes with the session.'"
+    }
+   ]
+  },
+  {
+   "id": "b29",
+   "section": "sec07",
+   "sentences": [
+    74,
+    78
+   ],
+   "visual": "SR: Claude Code session, asking 'can you see my site over MCP?' and the reply",
+   "transition_in": "hard cut",
+   "pace": "Build a little suspense on the ask, then a pleased 'Sweet huh!'.",
+   "key_point": true,
+   "notes": "Leave the real wait for the reply in, trimmed to a couple of seconds.",
+   "est_seconds": 25,
+   "cues": [
+    {
+     "id": "b29.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same terminal: type 'can you see my site over MCP?', Enter. Show the MCP tool call, then Claude's reply with the site name, URL and WordPress details.",
+     "script_cue": 26
+    },
+    {
+     "id": "b29.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 77,
+      "phrase": "information about the site"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on the site name in Claude's reply.",
+     "script_cue": 26
+    }
+   ]
+  },
+  {
+   "id": "b30",
+   "section": "sec07",
+   "sentences": [
+    79,
+    81
+   ],
+   "visual": "MG: recap checklist builds item by item",
+   "transition_in": "hard cut",
+   "pace": "Crisp recap, one tick per item.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b30.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Checklist, ticks on as each is read: 'A live site', 'A user with the lowest role', 'An application password for that user', 'The MCP Adapter plugin, active', then a divider 'On your machine', '.mcp.json with mcpServers and your connection'.",
+     "script_cue": 27
+    },
+    {
+     "id": "b30.sfx1",
+     "kind": "sfx",
+     "placement": "overlay",
+     "anchor": {
+      "cue": "b30.mg1"
+     },
+     "brief": "Soft tick per checklist item."
+    }
+   ]
+  },
+  {
+   "id": "b31",
+   "section": "sec08",
+   "sentences": [
+    82,
+    83
+   ],
+   "chapter": "What a Shop Manager role can see",
+   "visual": "SR: wp-admin, claude-ai user, role changed from Subscriber to Shop Manager",
+   "transition_in": "hard cut",
+   "pace": "Curious, experimental.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b31.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Production wp-admin: Users > claude-ai > Edit, Role dropdown from Subscriber to Shop Manager, Update User.",
+     "script_cue": 28
+    },
+    {
+     "id": "b31.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 83,
+      "phrase": "Shop Manager"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on the Role dropdown as it changes to 'Shop Manager'."
+    }
+   ]
+  },
+  {
+   "id": "b32",
+   "section": "sec08",
+   "sentences": [
+    84,
+    84
+   ],
+   "visual": "SR: Claude Code, asking about this week's and upcoming orders",
+   "transition_in": "hard cut",
+   "pace": "Matter of fact.",
+   "key_point": false,
+   "notes": "Keep the MCP tool calls visible in the output so viewers can see it came through the adapter (fact-check flag).",
+   "cues": [
+    {
+     "id": "b32.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Claude Code session: ask 'how many orders were processed this week?' then 'what orders are coming up?'. Show the MCP tool calls and the replies.",
+     "script_cue": 29
+    },
+    {
+     "id": "b32.blur1",
+     "kind": "blur",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 84
+     },
+     "duration": "to_beat_end",
+     "brief": "Blur every customer name, address, phone number and email in the replies."
+    }
+   ]
+  },
+  {
+   "id": "b33",
+   "section": "sec08",
+   "sentences": [
+    85,
+    85
+   ],
+   "visual": "MG: back to the kitchen, two padlocks drop off the jars",
+   "transition_in": "hard cut",
+   "pace": "Light, a small payoff.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b33.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "The kitchen from b17. The tag by the hatch changes to 'Shop Manager' and two padlocks drop off jars labelled 'Orders' and 'Upcoming orders'.",
+     "script_cue": 30
+    },
+    {
+     "id": "b33.sfx1",
+     "kind": "sfx",
+     "placement": "overlay",
+     "anchor": {
+      "cue": "b33.mg1"
+     },
+     "brief": "Two padlock clunks as they drop."
+    }
+   ]
+  },
+  {
+   "id": "b34",
+   "section": "sec08",
+   "sentences": [
+    86,
+    86
+   ],
+   "visual": "SR: wp-admin, role switched back to Subscriber",
+   "transition_in": "hard cut",
+   "pace": "Quick and firm.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b34.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Users > claude-ai > Edit, Role back to Subscriber, Update User, success notice visible.",
+     "script_cue": 31
+    },
+    {
+     "id": "b34.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 86,
+      "phrase": "Subscriber"
+     },
+     "duration": {
+      "seconds": 2
+     },
+     "brief": "Punch in on 'Subscriber' in the Role dropdown."
+    }
+   ]
+  },
+  {
+   "id": "b35",
+   "section": "sec09",
+   "sentences": [
+    87,
+    89
+   ],
+   "chapter": "Guard rails: CLAUDE.md and permissions",
+   "visual": "A, medium close-up, tighter than usual",
+   "transition_in": "hard cut",
+   "pace": "Serious for a second. Slower, lower energy, no music.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b35.music1",
+     "kind": "music",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 87
+     },
+     "brief": "Music drops out for the SSH story.",
+     "script_cue": 32
+    }
+   ]
+  },
+  {
+   "id": "b36",
+   "section": "sec09",
+   "sentences": [
+    90,
+    93
+   ],
+   "visual": "SR: the real terminal transcript of Claude reaching for SSH, key details blurred",
+   "transition_in": "hard cut",
+   "pace": "Measured storytelling. Let the transcript scroll at reading speed.",
+   "key_point": true,
+   "notes": "Show the real transcript (fact-check flag). Scroll through the Wordmove lookup and the SSH command.",
+   "est_seconds": 25,
+   "cues": [
+    {
+     "id": "b36.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "The real Claude Code transcript: the request it couldn't do over MCP, it reading the Wordmove Movefile, then running an ssh command and getting a shell on the live server.",
+     "script_cue": 33
+    },
+    {
+     "id": "b36.blur1",
+     "kind": "blur",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 90
+     },
+     "duration": "to_beat_end",
+     "brief": "Blur hostnames, IP addresses, SSH usernames, ports, key file paths and anything from the Movefile that identifies the server.",
+     "script_cue": 33
+    },
+    {
+     "id": "b36.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 93,
+      "phrase": "got into the site over SSH"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on the ssh command line in the transcript."
+    }
+   ]
+  },
+  {
+   "id": "b37",
+   "section": "sec09",
+   "sentences": [
+    94,
+    94
+   ],
+   "visual": "MG: the kitchen, the chef ignores the hatch and climbs in through the window",
+   "transition_in": "hard cut",
+   "pace": "Dry, a beat of comedy in a serious section.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b37.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "The kitchen again. The chef walks past the hatch, opens a window at the side and climbs in to the cupboard.",
+     "script_cue": 34
+    }
+   ]
+  },
+  {
+   "id": "b38",
+   "section": "sec09",
+   "sentences": [
+    95,
+    97
+   ],
+   "visual": "SR: CLAUDE.md with the MCP-only rule",
+   "transition_in": "hard cut",
+   "pace": "Instructional, clear.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b38.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor, project CLAUDE.md, a short rule in plain English: when interacting with this site, only use the MCP connection and the Abilities API; no SSH, no Wordmove, no other route.",
+     "script_cue": 35
+    },
+    {
+     "id": "b38.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 96,
+      "phrase": "only use the MCP connection"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Highlight the rule text."
+    }
+   ]
+  },
+  {
+   "id": "b39",
+   "section": "sec09",
+   "sentences": [
+    98,
+    98
+   ],
+   "visual": "SR: .claude/settings.local.json with deny rules",
+   "transition_in": "hard cut",
+   "pace": "Instructional.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b39.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor, hidden .claude folder open in the tree, settings.local.json showing a permissions deny list for SSH and similar commands (e.g. Bash(ssh:*), Bash(scp:*), Bash(rsync:*), Bash(wordmove:*)).",
+     "script_cue": 36
+    },
+    {
+     "id": "b39.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 98,
+      "phrase": "deny things like SSH commands"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on the deny array."
+    }
+   ]
+  },
+  {
+   "id": "b40",
+   "section": "sec09",
+   "sentences": [
+    99,
+    100
+   ],
+   "visual": "A, medium close-up, with a two-layer graphic beside",
+   "transition_in": "hard cut",
+   "pace": "Punchy summary. 'Belt and braces.' as a button.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b40.mg1",
+     "kind": "mg",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 99
+     },
+     "duration": "to_beat_end",
+     "brief": "Two stacked layers beside the presenter: top 'CLAUDE.md = asks nicely', bottom 'settings deny = actually stops it'. Bottom layer lands with more weight.",
+     "script_cue": 37
+    }
+   ]
+  },
+  {
+   "id": "b41",
+   "section": "sec10",
+   "sentences": [
+    101,
+    103
+   ],
+   "chapter": "Building an ability for delivery slots",
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Energy back up. A reset after the serious section.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b41.music1",
+     "kind": "music",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 101
+     },
+     "brief": "Music back in."
+    }
+   ]
+  },
+  {
+   "id": "b42",
+   "section": "sec10",
+   "sentences": [
+    104,
+    107
+   ],
+   "visual": "SR: slot management screen in the CasaGees admin",
+   "transition_in": "hard cut",
+   "pace": "Explanatory, friendly.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b42.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "CasaGees wp-admin slot management screen: Thursday to Saturday slots, each half-hour showing capacity 12 and remaining count.",
+     "script_cue": 38
+    },
+    {
+     "id": "b42.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 105,
+      "phrase": "Thursday, Friday and Saturday"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Caption: 'Thu to Sat, 5pm to 9pm. 12 pizzas per half hour.'"
+    },
+    {
+     "id": "b42.blur1",
+     "kind": "blur",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 104
+     },
+     "duration": "to_beat_end",
+     "brief": "Blur any customer names attached to booked slots."
+    }
+   ]
+  },
+  {
+   "id": "b43",
+   "section": "sec10",
+   "sentences": [
+    108,
+    109
+   ],
+   "visual": "MG: calendar, Thursday to Saturday filling up, Sunday blank with a question mark",
+   "transition_in": "hard cut",
+   "pace": "Mock frustration.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b43.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "Calendar with Thursday, Friday and Saturday columns filling with slot blocks, then Sunday arrives and next week goes blank with a large '?'.",
+     "script_cue": 39
+    }
+   ]
+  },
+  {
+   "id": "b44",
+   "section": "sec10",
+   "sentences": [
+    110,
+    111
+   ],
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Lightbulb moment, upbeat.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b44.lt1",
+     "kind": "lt",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 111,
+      "phrase": "register an ability"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Lower third: 'Ability: read and create slots' on line one, 'Locked to one capability' on line two."
+    }
+   ]
+  },
+  {
+   "id": "b45",
+   "section": "sec10",
+   "sentences": [
+    112,
+    113
+   ],
+   "visual": "MG: the same calendar refilling itself on Sunday morning",
+   "transition_in": "hard cut",
+   "pace": "Satisfied, easy.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b45.mg1",
+     "kind": "mg",
+     "placement": "bed",
+     "layer": "full",
+     "brief": "The calendar from b43. A small clock reads Sunday morning, and next week's Thursday to Saturday slots fill themselves in. Small label: 'Claude Cowork: skill + schedule'.",
+     "script_cue": 40
+    }
+   ]
+  },
+  {
+   "id": "b46",
+   "section": "sec10",
+   "sentences": [
+    114,
+    114
+   ],
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut (script: cut to building the ability)",
+   "pace": "Quick button into the build.",
+   "key_point": false,
+   "notes": "The ability build (b47 to b61) can be split into its own video if the runtime runs long; this is the cut point.",
+   "cues": [
+    {
+     "id": "b46.marker1",
+     "kind": "marker",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 114
+     },
+     "brief": "Cut point. Everything from b47 is the ability build; drop it in here or split it out as its own video.",
+     "script_cue": 41
+    }
+   ]
+  },
+  {
+   "id": "b47",
+   "section": "sec11",
+   "sentences": [
+    115,
+    118
+   ],
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Candid, a little sheepish. Straight to lens.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b47.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 117,
+      "phrase": "The prompt was"
+     },
+     "duration": {
+      "seconds": 5
+     },
+     "brief": "Caption, styled as a prompt box: 'build me an ability using the WP Abilities API to read and update order slots'."
+    }
+   ]
+  },
+  {
+   "id": "b48",
+   "section": "sec11",
+   "sentences": [
+    119,
+    123
+   ],
+   "visual": "SR: editor, main abilities plugin file, header and category registration",
+   "transition_in": "hard cut",
+   "pace": "Walkthrough, relaxed.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b48.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor, the abilities plugin's main PHP file: plugin header, version and plugin directory constants, then the abilities category registration.",
+     "script_cue": 42
+    },
+    {
+     "id": "b48.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 121,
+      "phrase": "register an abilities category"
+     },
+     "duration": {
+      "seconds": 5
+     },
+     "brief": "Highlight the category registration block, caption 'Category = the shelf'."
+    }
+   ]
+  },
+  {
+   "id": "b49",
+   "section": "sec11",
+   "sentences": [
+    124,
+    126
+   ],
+   "visual": "SR: editor, the ability registration hook in the main file",
+   "transition_in": "hard cut",
+   "pace": "Walkthrough.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b49.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, scroll to where the order slots ability is registered on the Abilities API hook, pointing at the separate abilities folder."
+    }
+   ]
+  },
+  {
+   "id": "b50",
+   "section": "sec11",
+   "sentences": [
+    127,
+    129
+   ],
+   "visual": "SR: editor, the casagees_abilities_can_manage permission callback",
+   "transition_in": "hard cut",
+   "pace": "Slower; this is the security bit.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b50.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, scroll to the function casagees_abilities_can_manage, which checks current_user_can( 'manage_casagees_slots' )."
+    },
+    {
+     "id": "b50.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 129,
+      "phrase": "manage_casagees_slots"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on 'manage_casagees_slots' in the capability check."
+    }
+   ]
+  },
+  {
+   "id": "b51",
+   "section": "sec11",
+   "sentences": [
+    130,
+    132
+   ],
+   "visual": "SR: terminal, WP-CLI adding the capability to the claude-ai user",
+   "transition_in": "hard cut",
+   "pace": "Clear, a satisfied landing on the padlock line.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b51.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Terminal: run 'wp user add-cap claude-ai manage_casagees_slots' and show the success message."
+    },
+    {
+     "id": "b51.blur1",
+     "kind": "blur",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 130
+     },
+     "duration": "to_beat_end",
+     "brief": "Blur the server hostname and username in the shell prompt."
+    },
+    {
+     "id": "b51.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 132,
+      "phrase": "only one user has the key"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Caption: 'One user. One capability. One key.'"
+    }
+   ]
+  },
+  {
+   "id": "b52",
+   "section": "sec12",
+   "sentences": [
+    133,
+    134
+   ],
+   "visual": "SR: editor, order slots ability file, the slot schema array",
+   "transition_in": "hard cut",
+   "pace": "Walkthrough.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b52.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Editor, abilities folder open in the tree, the order slots ability file, top of file showing the slot schema array.",
+     "script_cue": 43
+    }
+   ]
+  },
+  {
+   "id": "b53",
+   "section": "sec12",
+   "sentences": [
+    135,
+    139
+   ],
+   "visual": "SR: editor, the ability registration and its arguments",
+   "transition_in": "hard cut",
+   "pace": "Walkthrough, a little quicker over the self-explanatory ones.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b53.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, scroll to the registration call with the name 'casagees/get-order-slots' and the arguments array (label, description, category)."
+    },
+    {
+     "id": "b53.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 136,
+      "phrase": "casagees/get-order-slots"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Highlight 'casagees/get-order-slots'."
+    },
+    {
+     "id": "b53.callout2",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 138,
+      "phrase": "A label"
+     },
+     "duration": "to_beat_end",
+     "brief": "Highlight the label, description and category lines in turn."
+    }
+   ]
+  },
+  {
+   "id": "b54",
+   "section": "sec12",
+   "sentences": [
+    140,
+    142
+   ],
+   "visual": "SR: editor, the execute callback logic",
+   "transition_in": "hard cut",
+   "pace": "Keep moving; it's deliberately not line by line.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b54.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, the execute_callback argument, then a steady scroll through the callback's database logic."
+    },
+    {
+     "id": "b54.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 140,
+      "phrase": "execute callback"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Highlight the 'execute_callback' key."
+    }
+   ]
+  },
+  {
+   "id": "b55",
+   "section": "sec12",
+   "sentences": [
+    143,
+    144
+   ],
+   "visual": "SR: editor, the permission_callback line",
+   "transition_in": "hard cut",
+   "pace": "Short and satisfying.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b55.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, the permission_callback argument pointing at casagees_abilities_can_manage."
+    },
+    {
+     "id": "b55.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 143,
+      "phrase": "permission callback"
+     },
+     "duration": {
+      "seconds": 3
+     },
+     "brief": "Punch in on the permission_callback line."
+    }
+   ]
+  },
+  {
+   "id": "b56",
+   "section": "sec12",
+   "sentences": [
+    145,
+    147
+   ],
+   "visual": "SR: editor, the two registrations, get and create",
+   "transition_in": "hard cut",
+   "pace": "Summary pace.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b56.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, zoomed out enough to show both ability registrations one after the other."
+    },
+    {
+     "id": "b56.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 146,
+      "phrase": "One to get the order slots"
+     },
+     "duration": "to_beat_end",
+     "brief": "Two labels beside the registrations: 'Get: fetches' and 'Create: writes'."
+    }
+   ]
+  },
+  {
+   "id": "b57",
+   "section": "sec12",
+   "sentences": [
+    148,
+    152
+   ],
+   "visual": "SR: editor, input_schema in the get ability",
+   "transition_in": "hard cut",
+   "pace": "Explanatory, unhurried.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b57.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, the get ability's input_schema: properties for dates, availability and a limit.",
+     "script_cue": 44
+    },
+    {
+     "id": "b57.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 149,
+      "phrase": "The input schema"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Punch in on the input_schema block.",
+     "script_cue": 44
+    }
+   ]
+  },
+  {
+   "id": "b58",
+   "section": "sec12",
+   "sentences": [
+    153,
+    154
+   ],
+   "visual": "SR: editor, output_schema in the get ability",
+   "transition_in": "hard cut",
+   "pace": "Explanatory.",
+   "key_point": false,
+   "cues": [
+    {
+     "id": "b58.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, the get ability's output_schema.",
+     "script_cue": 44
+    },
+    {
+     "id": "b58.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 153,
+      "phrase": "The output schema"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Punch in on the output_schema block.",
+     "script_cue": 44
+    }
+   ]
+  },
+  {
+   "id": "b59",
+   "section": "sec12",
+   "sentences": [
+    155,
+    157
+   ],
+   "visual": "A, medium close-up, with a three-part graphic",
+   "transition_in": "hard cut",
+   "pace": "Land the big idea. 'Sweet huh!' as the button.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b59.mg1",
+     "kind": "mg",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 156,
+      "phrase": "here's what it wants"
+     },
+     "duration": "to_beat_end",
+     "brief": "Three stacked cards beside the presenter, one per phrase: 'What it wants (input schema)', 'What it gives back (output schema)', 'Who can call it (permission callback)'."
+    }
+   ]
+  },
+  {
+   "id": "b60",
+   "section": "sec12",
+   "sentences": [
+    158,
+    161
+   ],
+   "visual": "SR: editor, the meta array with 'mcp' => array( 'public' => true )",
+   "transition_in": "hard cut",
+   "pace": "Point it out clearly; this is the gotcha.",
+   "key_point": true,
+   "cues": [
+    {
+     "id": "b60.sr1",
+     "kind": "sr",
+     "placement": "bed",
+     "brief": "Same file, the ability's meta array with 'mcp' => array( 'public' => true ).",
+     "script_cue": 45
+    },
+    {
+     "id": "b60.zoom1",
+     "kind": "zoom",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 159,
+      "phrase": "public"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Punch in and highlight 'public' => true.",
+     "script_cue": 45
+    },
+    {
+     "id": "b60.callout1",
+     "kind": "callout",
+     "placement": "overlay",
+     "layer": "overlay",
+     "anchor": {
+      "sentence": 160,
+      "phrase": "private by default"
+     },
+     "duration": {
+      "seconds": 4
+     },
+     "brief": "Caption: 'Abilities are private by default.'"
+    }
+   ]
+  },
+  {
+   "id": "b61",
+   "section": "sec12",
+   "sentences": [
+    162,
+    165
+   ],
+   "visual": "A, medium close-up",
+   "transition_in": "hard cut",
+   "pace": "Honest and relaxed. Wind the build section down.",
+   "key_point": false,
+   "cues": []
+  },
+  {
+   "id": "b62",
+   "section": "sec13",
+   "sentences": [
+    166,
+    168
+   ],
+   "visual": "A, framed left, end screen elements on the right",
+   "transition_in": "hard cut",
+   "pace": "Warm sign-off, unhurried. Sit framed left for the full 20 seconds.",
+   "key_point": false,
+   "notes": "Frame the presenter left for the last 20 seconds; the right-hand side stays clear for the end screen elements. If the lines finish early, hold on the presenter rather than cutting.",
+   "est_seconds": 20,
+   "cues": [
+    {
+     "id": "b62.marker1",
+     "kind": "marker",
+     "placement": "overlay",
+     "anchor": {
+      "sentence": 166
+     },
+     "brief": "End screen starts: last 20 seconds. Right-hand side: the anchor video (Abilities API theory) as the main element, plus a subscribe button.",
+     "script_cue": 47
+    }
+   ]
+  }
+ ],
+ "assets": {
+  "sr": [
+   "Studio app with its built-in AI chat (b02)",
+   "GitHub WordPress/mcp-adapter README (b03) and repo home page (b10)",
+   "Production wp-admin Users > Add New for claude-ai with role Subscriber (b05, b06)",
+   "claude-ai profile, generating an application password (b08)",
+   "mcp-adapter Releases page, downloading mcp-adapter.zip (b11)",
+   "wp-admin Plugins > Add New > Upload, install and activate (b12)",
+   "Optional: terminal cloning and building the adapter (b12)",
+   "Editor: new .mcp.json typed line by line, plus the finished file hold (b19 to b26)",
+   "MCP Adapter docs page with the example config (b19)",
+   "CasaGees front page (b24)",
+   "Terminal: start Claude Code, approve the MCP server, ask 'can you see my site over MCP?' (b27, b29)",
+   "wp-admin role change to Shop Manager and back to Subscriber (b31, b34)",
+   "Claude Code asking about this week's and upcoming orders, with tool calls visible (b32)",
+   "The real SSH transcript (b36; also the source for the b01 flash)",
+   "CLAUDE.md with the MCP-only rule (b38)",
+   ".claude/settings.local.json with the deny list (b39)",
+   "CasaGees slot management admin screen (b42)",
+   "Abilities plugin main file, the permission callback, and the WP-CLI add-cap command (b48 to b51)",
+   "Order slots ability file: schema, registration, callbacks, input and output schemas, meta mcp public (b52 to b60)"
+  ],
+  "mg": [
+   "Cold-open blurred terminal flash with red 'ACCESS' stamp (b01)",
+   "Chapter cards 1 to 5 (b05, b08, b10, b19, b27)",
+   "Three greyed icons: user, key, plugin (b13)",
+   "Kitchen illustration master: hatch, cupboard of jars, padlocks, .mcp.json key, chef through the window (b15 to b18, b33, b37)",
+   "Flow diagram: laptop > mcp-wordpress-remote > internet > site (b22)",
+   "Red warning strip about committing passwords (b25)",
+   "Recap checklist (b30)",
+   "Two-layer CLAUDE.md vs settings deny graphic (b40)",
+   "Slot calendar emptying on Sunday, then refilling itself (b43, b45)",
+   "Three-part 'wants / gives back / who can call it' cards (b59)"
+  ],
+  "lt": [
+   "MCP = Model Context Protocol (b04)",
+   "Application password (b08)",
+   "Ability: read and create slots (b44)"
+  ],
+  "sfx": [
+   "Rubber-stamp thud (b01)",
+   "Small padlock clicks (b17)",
+   "Two padlock clunks (b33)",
+   "Soft checklist ticks (b30)"
+  ],
+  "music": [
+   "Light background bed for the walkthroughs, with a clean drop-out point at b35 and back in at b41"
+  ]
+ }
+}

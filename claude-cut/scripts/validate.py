@@ -195,13 +195,39 @@ def check_cues(cues: list[dict], beats: dict, script: Script,
             if not phrase_in(dur["to_phrase"], script.text(*beat["sentences"])):
                 errs.append(f"{cid}: to_phrase \"{dur['to_phrase']}\" is not "
                             f"in beat {beat['id']}")
-        if "sfx" in c:
-            target = by_id.get(c["sfx"])
-            if not target or target["kind"] != "sfx":
-                errs.append(f"{cid}: sfx {c['sfx']} is not an sfx cue")
-        if "script_cue" in c and c["script_cue"] >= n_script_cues:
-            errs.append(f"{cid}: script_cue {c['script_cue']} does not exist")
+        for sc in script_cue_list(c):
+            if sc >= n_script_cues:
+                errs.append(f"{cid}: script_cue {sc} does not exist")
     return errs
+
+
+def script_cue_list(cue: dict) -> list[int]:
+    sc = cue.get("script_cue")
+    return [] if sc is None else ([sc] if isinstance(sc, int) else list(sc))
+
+
+REINFORCING = {"callout", "lt", "zoom", "mg", "chapter"}
+
+
+def lint_paper_edit(pe: dict, script: Script) -> list[str]:
+    """Editorial notes that don't block the handoff but deserve a look."""
+    notes = []
+    used = {i for c in all_cues(pe) for i in script_cue_list(c)}
+    for i, sc in enumerate(script.doc.get("script_cues", [])):
+        if i in used or sc["kind"] != "bracket":
+            continue
+        if sc["text"].lower().startswith("talking head"):
+            continue  # a mode note; it belongs in the beat's visual
+        notes.append(f"script cue {i} (after sentence {sc['after']}) isn't "
+                     f"used by any cue: [{sc['text'][:70]}]")
+    for beat in pe["beats"]:
+        if beat.get("key_point") and not any(
+                c["kind"] in REINFORCING and
+                (c["placement"] != "bed" or c["kind"] == "mg")
+                for c in beat.get("cues", [])):
+            notes.append(f"{beat['id']}: key point with no reinforcing cue "
+                         f"(callout, lower third, zoom or graphic)")
+    return notes
 
 
 def check_director(doc: dict, pe: dict, script: Script) -> list[str]:
@@ -445,7 +471,21 @@ def main() -> None:
                 print(f"  - {e}")
         else:
             print(f"OK   {f} ({kind})")
+            for n in lint_file(f):
+                print(f"  note: {n}")
     sys.exit(1 if failed else 0)
+
+
+def lint_file(path: Path) -> list[str]:
+    """Non-blocking notes for a file that already validates."""
+    try:
+        doc = load(path)
+        if schema_kind(doc) == "paper-edit":
+            pe, script = load_paper_edit(path)
+            return lint_paper_edit(pe, script)
+    except HandoffError:
+        pass
+    return []
 
 
 if __name__ == "__main__":
