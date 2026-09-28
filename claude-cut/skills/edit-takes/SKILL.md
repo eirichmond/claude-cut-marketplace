@@ -100,6 +100,21 @@ import it via File > Import > Timeline in Resolve, into a FRESH project with
 'Automatically import source clips into media pool' ticked (pre-loading clips
 into the pool triggers Resolve's stricter timecode matcher and can fail).
 
+## Pipeline use (only when asked)
+
+When edit-takes runs as the cut stage of the full pipeline, the script is a
+generated prompter (`th.prompter.md` or `vo.prompter.md`) and step 3 also
+writes per-sentence timings for the conform stage:
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/match_takes.py" .claude-cut/transcript.json <prompter> \
+  -o .claude-cut/cuts.json --report .claude-cut/report.md \
+  --sentences-out .claude-cut/sentences.json
+```
+
+This adds a file and changes nothing else: `cuts.json`, `report.md` and the
+fcpxml are identical with or without it. Don't add it on standalone runs.
+
 ## Judgement calls
 
 - **Off-script speech** (intros, ad-libs) with no script match and no retake

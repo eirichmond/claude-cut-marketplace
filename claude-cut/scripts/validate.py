@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 from handoff import (CUE_RE, SCHEMA_DIR, HandoffError, load, phrase_in,
-                     schema_kind)
+                     resolve_input, schema_kind)
 from model import (Script, all_cues, cue_anchor_sentence, load_director,
                    load_paper_edit, segment_parts, segment_ranges,
                    sentence_owner)
@@ -66,6 +66,17 @@ def check_script(doc: dict) -> list[str]:
     for s in doc["sentences"]:
         if s["section"] not in sec_ids:
             errs.append(f"sentence {s['n']}: unknown section {s['section']}")
+    return errs
+
+
+def check_sentences(doc: dict) -> list[str]:
+    errs = []
+    ss = [s["s"] for s in doc["sentences"]]
+    if ss != list(range(1, len(ss) + 1)):
+        errs.append("sentences are not numbered s1..sN in order")
+    for s in doc["sentences"]:
+        if "start" in s and s["start"] > s["end"]:
+            errs.append(f"s{s['s']}: starts after it ends")
     return errs
 
 
@@ -401,6 +412,10 @@ def validate_file(path: Path) -> tuple[str | None, list[str]]:
             pe, script = load_paper_edit(path)
             return kind, (_prefixed("script", _schema_errors(script.doc, "script"))
                           or check_paper_edit(pe, script))
+        if kind == "sentences":
+            resolve_input(path, doc, "script")
+            resolve_input(path, doc, "transcript")
+            return kind, check_sentences(doc)
         if kind == "director":
             d, pe, pe_path, script = load_director(path)
             up = _prefixed(pe_path.name, _schema_errors(pe, "paper-edit")

@@ -268,6 +268,9 @@ def main() -> None:
     ap.add_argument("--merge-gap", type=float, default=1.0,
                     help="Merge kept ranges closer than this many seconds")
     ap.add_argument("--min-take-coverage", type=float, default=0.8)
+    ap.add_argument("--sentences-out", type=Path,
+                    help="Also write per-sentence timings (s1, s2...) for the "
+                         "pipeline's conform stage. Doesn't change the cut.")
     args = ap.parse_args()
 
     data = json.loads(args.transcript.read_text())
@@ -296,6 +299,10 @@ def main() -> None:
     if args.report:
         write_report(args.report, chunks, ranges, sentences,
                      data.get("duration", 0))
+    if args.sentences_out:
+        from sentence_timings import write_sentence_timings
+        write_sentence_timings(args.sentences_out, args.transcript, args.script,
+                               data, chunks, ranges, sentences)
     kept = sum(r["end"] - r["start"] for r in ranges)
     print(f"Kept {kept:.1f}s of {data.get('duration', 0):.1f}s "
           f"in {len(ranges)} ranges -> {args.output}")
