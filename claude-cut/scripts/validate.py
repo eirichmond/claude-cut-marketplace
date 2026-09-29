@@ -582,6 +582,10 @@ def validate_file(path: Path) -> tuple[str | None, list[str]]:
             return kind, check_graphics_spec(path, doc)
         if kind == "sfx-index":
             return kind, []
+        if kind == "graphics":
+            for role in doc["inputs"]:
+                resolve_input(path, doc, role)
+            return kind, []
         if kind == "plan-resolved":
             for role in doc["inputs"]:
                 resolve_input(path, doc, role)

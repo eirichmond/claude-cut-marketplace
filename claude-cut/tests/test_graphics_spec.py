@@ -1,82 +1,25 @@
 """graphics.json: every graphic and sfx cue covered once, valid template
 vars, custom compositions on-identity, SFX picks in the index."""
-import copy
 import json
 import shutil
-import subprocess
 
 import pytest
 
-import identity
-from conftest import FIXTURES, ROOT, run_conform, run_script, synthetic_cut
-from handoff import header, input_ref
+from conftest import (FIXTURES, SFX_FILES, graphics_body, graphics_world, run_script,
+                      write_graphics_spec)
 from validate import validate_file
 
 MCP = FIXTURES / "mcp-setup"
 pytestmark = pytest.mark.skipif(not shutil.which("node"), reason="needs node")
 
-TEMPLATE_FOR = {
-    "chapter": ("chapterCard", lambda c: {"num": "01", "kicker": "Chapter",
-                                          "title": c["brief"][:30]}),
-    "lt": ("lowerThird", lambda c: {"kicker": "Key term", "head": c["brief"][:40]}),
-    "callout": ("callout", lambda c: {"kicker": "Key point", "text": c["brief"][:40]}),
-}
-SFX_FILES = [("Impacts/Impact - Deep - Snap.wav", "Impacts"),
-             ("Whooshes/Whoosh - Pan - Heavy.wav", "Whooshes"),
-             ("Clicks/Click - Keyboard 02.wav", "Clicks")]
-
 
 @pytest.fixture(scope="module")
 def world(tmp_path_factory):
-    d = tmp_path_factory.mktemp("gspec")
-    synthetic_cut(MCP, d / "cut")
-    r = run_conform(MCP / "mcp-setup.director.json", MCP / "prompter.map.json",
-                    d / "cut", d / "plan.resolved.json")
-    assert r.returncode == 0, r.stdout
-    gfx = d / "graphics"
-    identity.install(gfx)
-    index = header("sfx-index", {})
-    index.update({"libraries": {"story": "/Volumes/Terrance/assets/The Story Sound Pack"},
-                  "files": [{"library": "story", "path": p, "category": cat,
-                             "name": p.split("/")[1][:-4], "duration": 0.8,
-                             "channels": 2, "rate": 48000} for p, cat in SFX_FILES]})
-    (gfx / "sfx-index.json").write_text(json.dumps(index))
-    plan = json.loads((d / "plan.resolved.json").read_text())
-    # one-off graphics: a real composition, built from a template, used as custom
-    mg = [c for c in plan["cues"] if c["kind"] == "mg"]
-    rows = [{"cue": c["id"], "template": "tag", "frames": c["tl"][1] - c["tl"][0] or 25,
-             "fps": "25/1", "vars": {"text": "one-off"}} for c in mg]
-    (gfx / "rows.json").write_text(json.dumps(rows))
-    subprocess.run(["node", str(ROOT / "graphics" / "build.mjs"), str(gfx),
-                    str(gfx / "rows.json")], check=True, capture_output=True)
-    return {"dir": d, "gfx": gfx, "plan": plan}
+    return graphics_world(tmp_path_factory.mktemp("gspec"))
 
 
-def body(world):
-    g, sfx, skip = [], [], []
-    for c in world["plan"]["cues"]:
-        if c["kind"] in TEMPLATE_FOR:
-            name, make = TEMPLATE_FOR[c["kind"]]
-            g.append({"cue": c["id"], "template": name, "vars": make(c)})
-        elif c["kind"] == "mg":
-            g.append({"cue": c["id"], "template": "custom",
-                      "composition": f"compositions/{c['id']}.html"})
-        elif c["kind"] == "sfx":
-            sfx.append({"cue": c["id"], "library": "story", "file": SFX_FILES[0][0],
-                        "gain_db": -6, "alternatives": [SFX_FILES[1][0]]})
-    return {"graphics": g, "sfx": sfx, "skip": skip}
-
-
-def write(world, b, sfx_index=True, name="graphics.json"):
-    gfx = world["gfx"]
-    doc = header("graphics-spec", {
-        "plan": input_ref(world["dir"] / "plan.resolved.json", gfx),
-        "frame": input_ref(gfx / "frame.md", gfx),
-        **({"sfx_index": input_ref(gfx / "sfx-index.json", gfx)} if sfx_index else {})})
-    doc.update(b)
-    p = gfx / name
-    p.write_text(json.dumps(doc, indent=1))
-    return p
+body = graphics_body
+write = write_graphics_spec
 
 
 def errors(world, mutate=None, **kw):
