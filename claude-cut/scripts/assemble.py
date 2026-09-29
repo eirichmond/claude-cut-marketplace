@@ -12,17 +12,29 @@ approach as the B-roll graft) and writes:
                              gaps for VO segments and inserts
                              lane 1   the B-roll angle (build_xml's graft)
                              lane 2   screen-recording / b-roll beds
+                             lane 3   rendered full-frame graphics
+                             lane 4   rendered overlays (alpha)
                              lane -1  VO audio, from the original recording
-  <video>_markers.edl        chapters (blue), CHECK points and missing
-                             assets (red), graphic cues (yellow): import
+                             lane -2  the sound-effects stem, from 0:00
+  <video>_markers.edl        chapters (blue), CHECK points, missing assets
+                             and unreviewed graphics (red), sound effects
+                             and anything still to add (yellow): import
                              with Media Pool > right-click the timeline >
                              Timelines > Import > Timeline Markers from EDL
   assemble-report.md         what was placed, what's missing, how to import
 
 A stereo VO recording is downmixed to <name>_mono.wav beside it (the
 original is untouched), so Resolve puts it on its own track next to the
-stereo camera audio. Graphics and sound effects are markers until the
-graphics stage renders them (v0.6).
+stereo camera audio.
+
+Graphics come from the graphics stage's project (--graphics DIR, or the
+graphics/ folder beside shoot.json when it has rendered): every approved
+render is placed, and the SFX stem goes in as one full-length clip (Resolve
+gives it its own track), with a yellow marker per effect. Assemble refuses
+if the renders are stale (the plan or graphics.json changed since they were
+rendered), a render's frame count doesn't match its cue, or anything is
+unapproved (--allow-unreviewed places those anyway, each with a red
+marker). Cues with no render (skipped, or no graphics stage) stay markers.
 """
 from __future__ import annotations
 
@@ -41,7 +53,10 @@ from validate import validate_file
 
 GAP_START = Fraction(3600)
 BED_LANE = "2"
+GFX_LANES = {"full": "3", "overlay": "4"}
 VO_LANE = "-1"
+SFX_LANE = "-2"
+GRAPHIC_KINDS = ("mg", "lt", "chapter", "callout")
 MARKER_KINDS = {"mg", "lt", "chapter", "callout", "zoom", "blur", "sfx",
                 "music", "marker"}
 COLOURS = {"check": "ResolveColorRed", "missing": "ResolveColorRed",
@@ -259,6 +274,105 @@ def rel(base: Path, p: str | None) -> Path | None:
     return q if q.is_absolute() else (base / q).resolve()
 
 
+def count_packets(path: Path) -> int:
+    """Frames in an intra-frame (ProRes) render, without decoding it."""
+    r = subprocess.run(["ffprobe", "-v", "error", "-count_packets", "-select_streams",
+                        "v:0", "-show_entries", "stream=nb_read_packets", "-of",
+                        "csv=p=0", str(path)], capture_output=True, text=True)
+    try:
+        return int(r.stdout.strip())
+    except ValueError:
+        return -1
+
+
+def find_graphics(args, base: Path) -> Path | None:
+    if args.no_graphics:
+        return None
+    if args.graphics:
+        return args.graphics
+    auto = base / "graphics"
+    return auto if (auto / "renders" / "manifest.json").exists() else None
+
+
+def load_graphics(gdir: Path, plan_path: Path, plan: dict,
+                  allow_unreviewed: bool) -> dict:
+    """The graphics stage's renders and SFX stem, checked against this plan.
+    Every problem is collected; any of them stops the assemble."""
+    mpath = gdir / "renders" / "manifest.json"
+    if not mpath.exists():
+        raise AssembleError(f"{gdir} has no renders/manifest.json: run "
+                            f"render_graphics.py (or --no-graphics)")
+    doc = load(mpath)
+    problems = []
+    try:
+        rendered_for = resolve_input(mpath, doc, "plan")
+        if rendered_for.resolve() != Path(plan_path).resolve():
+            problems.append(f"the graphics were rendered for {rendered_for}, "
+                            f"not {plan_path}")
+    except HandoffError:
+        problems.append("the plan has changed since the graphics were rendered: "
+                        "run render_graphics.py again (changed cues go back to "
+                        "review)")
+    spec = None
+    try:
+        spec_path = resolve_input(mpath, doc, "spec")
+        spec = load(spec_path)
+    except HandoffError:
+        problems.append("graphics.json has changed since the last render: run "
+                        "render_graphics.py again")
+    if problems:               # stale: say so plainly, before the schema check
+        raise AssembleError("the graphics aren't ready:\n  - " + "\n  - ".join(problems))
+    _, errs = validate_file(mpath)
+    if errs:
+        raise AssembleError(f"{mpath} doesn't validate:\n  - " + "\n  - ".join(errs))
+    cues = {c["id"]: c for c in plan["cues"]}
+    renders, unreviewed = {}, []
+    for r in doc["renders"]:
+        c = cues.get(r["cue"])
+        f = gdir / r["file"]
+        if not c:
+            problems.append(f"{r['cue']}: rendered, but not a cue in the plan")
+            continue
+        need = c["tl"][1] - c["tl"][0]
+        if not f.exists():
+            problems.append(f"{r['cue']}: {r['file']} is missing")
+            continue
+        got = count_packets(f)
+        if r["frames"] != need or got != need:
+            problems.append(f"{r['cue']}: the render is {got} frames, the cue "
+                            f"needs {need}")
+            continue
+        if r["review"]["status"] != "approved":
+            unreviewed.append((r["cue"], r["review"]))
+        renders[r["cue"]] = r
+    sfx = doc.get("sfx")
+    if sfx:
+        stem = gdir / sfx["file"]
+        if not stem.exists():
+            problems.append(f"{sfx['file']} is missing")
+            sfx = None
+        else:
+            for it in sfx["items"]:
+                c = cues.get(it["cue"])
+                if not c or c["tl"][0] != it["frame"]:
+                    problems.append(f"{it['cue']}: mixed at frame {it['frame']}, "
+                                    f"the plan has it at "
+                                    f"{c['tl'][0] if c else 'no such cue'}")
+                if it["review"]["status"] != "approved":
+                    unreviewed.append((it["cue"], it["review"]))
+    if unreviewed and not allow_unreviewed:
+        problems.append(f"{len(unreviewed)} not approved yet (" +
+                        ", ".join(f"{c} {r['status']}" for c, r in unreviewed) +
+                        "): finish the review (review.py serve) or pass "
+                        "--allow-unreviewed")
+    if problems:
+        raise AssembleError("the graphics aren't ready:\n  - " +
+                            "\n  - ".join(problems))
+    skips = {s["cue"]: s["reason"] for s in (spec or {}).get("skip", [])}
+    return {"dir": gdir, "renders": renders, "sfx": sfx, "skips": skips,
+            "unreviewed": dict(unreviewed)}
+
+
 def assemble(args) -> dict:
     kind, errs = validate_file(args.plan)
     if errs:
@@ -283,6 +397,8 @@ def assemble(args) -> dict:
     if args.output.resolve() == fcp_in.resolve():
         raise AssembleError("refusing to overwrite the edit-takes timeline; "
                             "write the assembled timeline to a new file")
+    gdir = find_graphics(args, base)
+    gfx = load_graphics(gdir, args.plan, plan, args.allow_unreviewed) if gdir else None
     tl = Timeline(fcp_in, fps)
 
     # --- spine ------------------------------------------------------------------
@@ -346,6 +462,9 @@ def assemble(args) -> dict:
     # --- lane 2: beds and cutaways, markers for everything else ---------------
     assets = shoot.get("assets", {})
     markers, placed_beds, missing, short = [], 0, [], []
+    placed_gfx = {"full": 0, "overlay": 0}
+    sfx_items = {it["cue"]: it for it in (gfx["sfx"]["items"] if gfx and gfx["sfx"]
+                                          else [])}
     asset_ids: dict[Path, tuple] = {}
     for c in plan["cues"]:
         a, b = c["tl"]
@@ -369,14 +488,45 @@ def assemble(args) -> dict:
                                    "name": c["id"], "start": rt(tc0),
                                    "srcEnable": "video"})
             placed_beds += 1
-        elif c["kind"] in MARKER_KINDS and not c["placement"].startswith("insert"):
-            markers.append((a, "cue", f"{c['id']} {c['kind'].upper()}: "
-                            f"{c['brief']}", b - a))
-        elif c["placement"].startswith("insert"):
-            markers.append((a, "cue", f"{c['id']} {c['kind'].upper()} "
-                            f"(insert, {b - a} frames): {c['brief']}", b - a))
+        elif gfx and c["id"] in gfx["renders"]:
+            r = gfx["renders"][c["id"]]
+            path = (gfx["dir"] / r["file"]).resolve()
+            aid, tc0, _ = tl.add_video_asset(path)
+            tl.connect(a, b - a, {"ref": aid, "lane": GFX_LANES[r["layer"]],
+                                  "name": c["id"], "start": rt(tc0),
+                                  "srcEnable": "video"})
+            placed_gfx[r["layer"]] += 1
+            if c["id"] in gfx["unreviewed"]:
+                markers.append((a, "check", f"UNREVIEWED {c['id']} "
+                                f"({gfx['unreviewed'][c['id']]['status']})", b - a))
+        elif gfx and c["kind"] == "sfx" and c["id"] in sfx_items:
+            it = sfx_items[c["id"]]
+            unrev = " UNREVIEWED" if c["id"] in gfx["unreviewed"] else ""
+            markers.append((a, "check" if unrev else "cue",
+                            f"SFX{unrev} {c['id']}: {Path(it['file']).stem}", 1))
+        else:
+            if c["kind"] not in MARKER_KINDS and not c["placement"].startswith("insert"):
+                continue
+            why = f" (skipped: {gfx['skips'][c['id']]})" \
+                if gfx and c["id"] in gfx["skips"] else ""
+            insert = f" (insert, {b - a} frames)" \
+                if c["placement"].startswith("insert") else ""
+            markers.append((a, "cue", f"{c['id']} {c['kind'].upper()}{insert}"
+                            f"{why}: {c['brief']}", b - a))
     for m in plan["markers"]:
         markers.append((m["tl"], m["kind"], m["name"], 1))
+
+    # --- lane -2: the SFX stem, one full-length clip from 0:00 --------------
+    stem = None
+    if gfx and gfx["sfx"]:
+        stem = (gfx["dir"] / gfx["sfx"]["file"]).resolve()
+        sid, sdur = tl.add_audio_asset(stem)
+        total = plan["timeline"]["frames"]
+        if abs(tl.frames(sdur) - total) > 1:
+            raise AssembleError(f"{stem.name} is {float(sdur):.2f}s, the timeline "
+                                f"{float(tl.T(total)):.2f}s: render_graphics.py again")
+        tl.connect(0, total, {"ref": sid, "lane": SFX_LANE, "name": "SFX stem",
+                              "start": "0s"})
 
     tl.write(out)
     edl = out.with_name(out.name.replace("_assembled.fcpxml", "") +
@@ -386,7 +536,8 @@ def assemble(args) -> dict:
                                   f"{out.stem} markers")
     return {"fcpxml": out, "edl": edl, "report": report, "missing": missing,
             "short": short, "beds": placed_beds, "vo_clips": vo_clips,
-            "markers": n_markers, "plan": plan}
+            "markers": n_markers, "plan": plan, "gfx": gfx, "placed_gfx": placed_gfx,
+            "stem": stem}
 
 
 def write_report(path: Path, r: dict) -> None:
@@ -400,8 +551,21 @@ def write_report(path: Path, r: dict) -> None:
              f"{int(secs % 60):02d} at {plan['timeline']['fps']} fps, "
              f"{th} talking-head and {vo} voiceover segments",
              f"- Voiceover: {r['vo_clips']} clips on its own audio track",
-             f"- Screen recordings and b-roll placed: {r['beds']}",
-             f"- Markers: {r['markers']} in `{r['edl'].name}`"]
+             f"- Screen recordings and b-roll placed: {r['beds']}"]
+    gfx = r["gfx"]
+    if gfx:
+        n = r["placed_gfx"]
+        lines += [f"- Graphics from `{gfx['dir']}`: {n['full']} full-frame "
+                  f"(track above the screen recordings) and {n['overlay']} "
+                  f"overlays (the track above that)"]
+        if r["stem"]:
+            lines += [f"- Sound effects: {len(gfx['sfx']['items'])} mixed into "
+                      f"`{r['stem'].name}`, one clip from the start on its own "
+                      f"audio track, with a yellow marker at each effect"]
+    else:
+        lines += ["- Graphics: none rendered, so every graphic and sound effect "
+                  "is a yellow marker"]
+    lines += [f"- Markers: {r['markers']} in `{r['edl'].name}`"]
     lines += [f"- {x}" for x in r["report"]]
     lines += ["", "## Import into Resolve", "",
               f"1. File > Import > Timeline, pick `{r['fcpxml'].name}`, into a "
@@ -410,8 +574,16 @@ def write_report(path: Path, r: dict) -> None:
               f"2. In the Media Pool, right-click the new timeline > Timelines > "
               f"Import > Timeline Markers from EDL..., pick `{r['edl'].name}`.",
               "", "Markers: blue = chapters, red = check this / missing "
-              "asset, yellow = graphics, lower thirds, zooms, blurs and "
-              "sound effects still to add."]
+              "asset / unreviewed graphic, yellow = sound effects in the stem "
+              "and anything still to add (zooms, blurs, skipped graphics)."]
+    if gfx and gfx["unreviewed"]:
+        lines += ["", f"## Placed without approval ({len(gfx['unreviewed'])})", "",
+                  "Assembled with --allow-unreviewed; each has a red marker."]
+        lines += [f"- `{c}`: {v['status']}" + (f" ({v['note']})" if v.get("note") else "")
+                  for c, v in gfx["unreviewed"].items()]
+    if gfx and gfx["skips"]:
+        lines += ["", f"## Skipped in the graphics stage ({len(gfx['skips'])})", ""]
+        lines += [f"- `{c}`: {why}" for c, why in gfx["skips"].items()]
     if r["missing"]:
         lines += ["", f"## Not captured yet ({len(r['missing'])})", "",
                   "The picture is black there; each has a red marker. Add the "
@@ -439,6 +611,13 @@ def main() -> None:
     ap.add_argument("--offsets", type=Path, help="overrides th.offsets")
     ap.add_argument("--keep-stereo-vo", action="store_true",
                     help="use a stereo VO file as-is (it may share A1)")
+    ap.add_argument("--graphics", type=Path,
+                    help="the graphics project (default: graphics/ beside "
+                         "shoot.json, if it has rendered)")
+    ap.add_argument("--no-graphics", action="store_true",
+                    help="leave every graphic and sound effect as a marker")
+    ap.add_argument("--allow-unreviewed", action="store_true",
+                    help="place renders that aren't approved yet (red markers)")
     ap.add_argument("-o", "--output", type=Path, required=True)
     args = ap.parse_args()
     if args.output.suffix != ".fcpxml":
@@ -449,8 +628,10 @@ def main() -> None:
         sys.exit(f"Assemble failed: {e}")
     rpath = args.output.with_name("assemble-report.md")
     write_report(rpath, r)
+    g = r["placed_gfx"]
     print(f"Wrote {r['fcpxml']} ({r['beds']} beds, {r['vo_clips']} VO clips, "
-          f"{len(r['missing'])} assets missing)")
+          f"{g['full'] + g['overlay']} graphics"
+          f"{', SFX stem' if r['stem'] else ''}, {len(r['missing'])} assets missing)")
     print(f"Wrote {r['edl']} ({r['markers']} markers)")
     print(f"Wrote {rpath}")
 
