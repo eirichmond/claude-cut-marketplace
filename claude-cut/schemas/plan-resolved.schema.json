@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/plan-resolved.schema.json",
+  "title": "claude-cut/plan-resolved@1: the conformed plan (written by conform.py)",
+  "description": "Everything in timeline frames at timeline.fps. tl is a half-open [start, end) range on the final timeline; th_tl is the same segment's range on the edit-takes TH timeline. Source ranges are seconds in the recording.",
+  "type": "object",
+  "required": ["schema", "created", "inputs", "timeline", "segments", "cues", "markers", "warnings"],
+  "$defs": {
+    "tl": {"type": "array", "items": {"type": "integer", "minimum": 0}, "minItems": 2, "maxItems": 2}
+  },
+  "properties": {
+    "schema": {"const": "claude-cut/plan-resolved@1"},
+    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "inputs": {"type": "object", "additionalProperties": {"$ref": "_defs.schema.json#/$defs/inputRef"}},
+    "timeline": {
+      "type": "object", "required": ["fps", "width", "height", "frames"],
+      "properties": {
+        "fps": {"type": "string", "pattern": "^\\d+/\\d+$"},
+        "width": {"type": "integer"}, "height": {"type": "integer"},
+        "frames": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "scope": {"type": "string"},
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "beat", "mode", "sentences", "tl", "source"],
+        "properties": {
+          "id": {"$ref": "_defs.schema.json#/$defs/segmentId"},
+          "beat": {"$ref": "_defs.schema.json#/$defs/beatId"},
+          "mode": {"enum": ["th", "vo"]},
+          "sentences": {"$ref": "_defs.schema.json#/$defs/sentenceRange"},
+          "tl": {"$ref": "#/$defs/tl"},
+          "th_tl": {"$ref": "#/$defs/tl"},
+          "source": {
+            "type": "object", "required": ["file", "ranges"],
+            "properties": {
+              "file": {"enum": ["th", "vo"]},
+              "ranges": {"type": "array", "items": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "cues": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "kind", "placement", "segment", "beat", "tl", "brief"],
+        "properties": {
+          "id": {"$ref": "_defs.schema.json#/$defs/cueId"},
+          "kind": {"type": "string"}, "placement": {"type": "string"},
+          "segment": {"$ref": "_defs.schema.json#/$defs/segmentId"},
+          "beat": {"$ref": "_defs.schema.json#/$defs/beatId"},
+          "tl": {"$ref": "#/$defs/tl"},
+          "brief": {"type": "string"},
+          "layer": {"enum": ["full", "overlay"]},
+          "render": {"type": "string"},
+          "asset": {"type": "string"},
+          "reanchored": {"type": "boolean"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "markers": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["tl", "kind", "name"],
+        "properties": {
+          "tl": {"type": "integer", "minimum": 0},
+          "kind": {"enum": ["chapter", "check", "note"]},
+          "name": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

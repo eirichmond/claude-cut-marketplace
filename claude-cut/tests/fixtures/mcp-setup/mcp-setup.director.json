@@ -1,0 +1,644 @@
+{
+ "schema": "claude-cut/director@1",
+ "created": "2026-09-28T15:55:38Z",
+ "inputs": {
+  "paper_edit": {
+   "path": "mcp-setup.paper-edit.json",
+   "sha256": "73cd4b1d697481d539ca70df10754d8aa841ac24401270067b02585249a41bed"
+  }
+ },
+ "segments": [
+  {
+   "id": "b01",
+   "beat": "b01",
+   "mode": "th",
+   "delivery": "Fast, conspiratorial hook; lean on 'over SSH', then a promise to camera."
+  },
+  {
+   "id": "b02",
+   "beat": "b02",
+   "mode": "th",
+   "delivery": "Conversational; wry pause before and after 'Fine.', then set up your own config."
+  },
+  {
+   "id": "b03",
+   "beat": "b03",
+   "mode": "th",
+   "delivery": "Steady, setting up the problem; land 'So that's what this video is.' firmly."
+  },
+  {
+   "id": "b04",
+   "beat": "b04",
+   "mode": "th",
+   "delivery": "Relaxed and plain on the definition; knowing smile on 'back pocket'."
+  },
+  {
+   "id": "b05",
+   "beat": "b05",
+   "mode": "vo",
+   "delivery": "Brisk, instructional; stress 'live production site, not your local one'.",
+   "on_screen": "Live wp-admin, Users > Add New, creating claude-ai (password and email blurred)."
+  },
+  {
+   "id": "b06a",
+   "beat": "b06",
+   "sentences": [
+    17,
+    18
+   ],
+   "mode": "vo",
+   "delivery": "Slow down on 'The important bit is the role.', beat, then 'Subscriber'.",
+   "on_screen": "Role dropdown opened and set to Subscriber, punch in."
+  },
+  {
+   "id": "b06b",
+   "beat": "b06",
+   "sentences": [
+    19,
+    19
+   ],
+   "mode": "th",
+   "delivery": "Firm warning to camera; hit 'admin' and 'let it go wild'."
+  },
+  {
+   "id": "b07",
+   "beat": "b07",
+   "mode": "vo",
+   "delivery": "Brisk; small breath before the definition; stress 'shows it once'.",
+   "on_screen": "claude-ai profile, Application Passwords, generating one (password blurred)."
+  },
+  {
+   "id": "b08",
+   "beat": "b08",
+   "mode": "th",
+   "delivery": "Slower; deadpan pause before 'They just sit there.'"
+  },
+  {
+   "id": "b09",
+   "beat": "b09",
+   "mode": "vo",
+   "delivery": "Brisk; light hedge on 'as far as I know'; clear on 'mcp-adapter'.",
+   "on_screen": "github.com/WordPress/mcp-adapter repo home, README header."
+  },
+  {
+   "id": "b10",
+   "beat": "b10",
+   "mode": "vo",
+   "delivery": "Brisk and practical; drop the voice slightly for the bracketed aside.",
+   "on_screen": "Releases page, mcp-adapter.zip download, then Plugins > Add New > Upload > Activate."
+  },
+  {
+   "id": "b11a",
+   "beat": "b11",
+   "sentences": [
+    32,
+    33
+   ],
+   "mode": "vo",
+   "delivery": "Measured; a small pause between each thing that 'does nothing'.",
+   "on_screen": "Three greyed-out icons appear one by one: user, key, plugin."
+  },
+  {
+   "id": "b11b",
+   "beat": "b11",
+   "sentences": [
+    34,
+    34
+   ],
+   "mode": "th",
+   "delivery": "Lift on 'that's where the analogy comes in'; lead into the kitchen."
+  },
+  {
+   "id": "b12",
+   "beat": "b12",
+   "mode": "th",
+   "delivery": "Slower and warmer; grin on 'I was one once'; land 'The hatch'."
+  },
+  {
+   "id": "b13",
+   "beat": "b13",
+   "mode": "th",
+   "delivery": "Explanatory, unhurried; one idea per sentence, pause after each."
+  },
+  {
+   "id": "b14",
+   "beat": "b14",
+   "mode": "th",
+   "delivery": "Unhurried; land 'That's the whole point of picking the lowest role.' to camera."
+  },
+  {
+   "id": "b15",
+   "beat": "b15",
+   "mode": "th",
+   "delivery": "Deliberate, the main insight; lean in on sentence 44, pause before 'The key is'."
+  },
+  {
+   "id": "b16a",
+   "beat": "b16",
+   "sentences": [
+    47,
+    47
+   ],
+   "mode": "th",
+   "delivery": "Straight to camera, a touch of edge on what the docs skip; 'so let's do that'."
+  },
+  {
+   "id": "b16b",
+   "beat": "b16",
+   "sentences": [
+    48,
+    48
+   ],
+   "mode": "vo",
+   "delivery": "Clear and methodical; spell out 'dot mcp dot json'.",
+   "on_screen": "Editor at the project root: New File .mcp.json, {} typed."
+  },
+  {
+   "id": "b17",
+   "beat": "b17",
+   "mode": "vo",
+   "delivery": "Quick, matter-of-fact.",
+   "on_screen": "MCP Adapter docs example config copied and pasted into .mcp.json."
+  },
+  {
+   "id": "b18",
+   "beat": "b18",
+   "mode": "vo",
+   "delivery": "Methodical, one idea per line; short pause between keys.",
+   "on_screen": "mcpServers key, then the claude-ai object highlighted as mentioned."
+  },
+  {
+   "id": "b19",
+   "beat": "b19",
+   "mode": "vo",
+   "delivery": "Methodical; read the package name slowly and clearly.",
+   "on_screen": "command and args lines highlighted, then the bridge flow graphic."
+  },
+  {
+   "id": "b20",
+   "beat": "b20",
+   "mode": "vo",
+   "delivery": "Slow right down on the route; people get it wrong.",
+   "on_screen": "env object, WP_API_URL with the route, punch in on the route."
+  },
+  {
+   "id": "b21",
+   "beat": "b21",
+   "mode": "th",
+   "delivery": "Light personal aside, a smile on 'side hustle'."
+  },
+  {
+   "id": "b22",
+   "beat": "b22",
+   "mode": "vo",
+   "delivery": "Methodical; clear gap between the two keys.",
+   "on_screen": "WP_API_USERNAME and WP_API_PASSWORD keys added with ${} values."
+  },
+  {
+   "id": "b23a",
+   "beat": "b23",
+   "sentences": [
+    62,
+    63
+   ],
+   "mode": "vo",
+   "delivery": "A touch more serious; slow on 'dollar sign ... curly brackets'.",
+   "on_screen": "Finished .mcp.json, ${} values highlighted, punch in, shell callout."
+  },
+  {
+   "id": "b23b",
+   "beat": "b23",
+   "sentences": [
+    64,
+    64
+   ],
+   "mode": "th",
+   "delivery": "Serious, to camera; land 'accidentally get committed'."
+  },
+  {
+   "id": "b24",
+   "beat": "b24",
+   "mode": "th",
+   "delivery": "Punchy, eyebrow raised on 'numpty'."
+  },
+  {
+   "id": "b25",
+   "beat": "b25",
+   "mode": "vo",
+   "delivery": "Methodical; a wry lift on '(and it will)'.",
+   "on_screen": "LOG_FILE line added, mcp/logs folder, then hold on the finished file."
+  },
+  {
+   "id": "b26",
+   "beat": "b26",
+   "mode": "vo",
+   "delivery": "Brisk; 'so say yes' light.",
+   "on_screen": "Terminal: run claude, approve the claude-ai MCP server."
+  },
+  {
+   "id": "b27",
+   "beat": "b27",
+   "mode": "th",
+   "delivery": "Considered; stress 'deliberate choice' at the end."
+  },
+  {
+   "id": "b28",
+   "beat": "b28",
+   "mode": "vo",
+   "delivery": "Quick; read the question as if typing it.",
+   "on_screen": "Claude Code prompt: 'can you see my site over MCP?'"
+  },
+  {
+   "id": "b29",
+   "beat": "b29",
+   "mode": "vo",
+   "delivery": "Small payoff; smile through 'Sweet huh!'",
+   "on_screen": "Claude's response with site info, punch in on the site name (details blurred)."
+  },
+  {
+   "id": "b30",
+   "beat": "b30",
+   "mode": "vo",
+   "delivery": "Brisk recap, a tiny pause after each item; 'That's it.' flat and final.",
+   "on_screen": "Recap checklist builds and ticks item by item."
+  },
+  {
+   "id": "b31",
+   "beat": "b31",
+   "mode": "th",
+   "delivery": "Curious, setting up an experiment."
+  },
+  {
+   "id": "b32",
+   "beat": "b32",
+   "mode": "vo",
+   "delivery": "Brisk.",
+   "on_screen": "claude-ai role changed from Subscriber to Shop Manager, punch in."
+  },
+  {
+   "id": "b33",
+   "beat": "b33",
+   "mode": "vo",
+   "delivery": "Brisk; slightly wry on 'that kind of works'.",
+   "on_screen": "Order questions in Claude Code with MCP tool calls (blurred), then padlocks drop off."
+  },
+  {
+   "id": "b34",
+   "beat": "b34",
+   "mode": "vo",
+   "delivery": "Matter-of-fact.",
+   "on_screen": "claude-ai role back to Subscriber, 'User updated' notice."
+  },
+  {
+   "id": "b35",
+   "beat": "b35",
+   "mode": "th",
+   "delivery": "Serious for a second; slower, direct to camera."
+  },
+  {
+   "id": "b36",
+   "beat": "b36",
+   "mode": "th",
+   "delivery": "Storytelling, building tension; pause before 'So it went looking for another way in.'"
+  },
+  {
+   "id": "b37",
+   "beat": "b37",
+   "mode": "th",
+   "delivery": "Firm and practical; 'no SSH and no other route in' spelt out."
+  },
+  {
+   "id": "b38",
+   "beat": "b38",
+   "mode": "vo",
+   "delivery": "Practical; stress 'deny' and 'outright'.",
+   "on_screen": ".claude/settings.local.json with the deny rules, punch in."
+  },
+  {
+   "id": "b39a",
+   "beat": "b39",
+   "sentences": [
+    99,
+    99
+   ],
+   "mode": "vo",
+   "delivery": "Punchy contrast: 'a request' versus 'a wall'.",
+   "on_screen": "Two layers: CLAUDE.md asks nicely, settings deny actually stops it."
+  },
+  {
+   "id": "b39b",
+   "beat": "b39",
+   "sentences": [
+    100,
+    100
+   ],
+   "mode": "th",
+   "delivery": "A grin, short and snappy."
+  },
+  {
+   "id": "b40",
+   "beat": "b40",
+   "mode": "th",
+   "delivery": "Reset, lighter; upbeat 'Right.' then a beat."
+  },
+  {
+   "id": "b41",
+   "beat": "b41",
+   "mode": "th",
+   "delivery": "Personal and relaxed; land 'That's the guard rail for customers.'"
+  },
+  {
+   "id": "b42",
+   "beat": "b42",
+   "mode": "th",
+   "delivery": "Exasperated, comic; 'every single week' with feeling."
+  },
+  {
+   "id": "b43",
+   "beat": "b43",
+   "mode": "th",
+   "delivery": "Building enthusiasm; pause, then 'Let's build it.'"
+  },
+  {
+   "id": "b44",
+   "beat": "b44",
+   "mode": "th",
+   "delivery": "Candid, a little sheepish, then matter-of-fact."
+  },
+  {
+   "id": "b45",
+   "beat": "b45",
+   "mode": "vo",
+   "delivery": "Steady walkthrough; lift on 'the shelf in the cupboard'.",
+   "on_screen": "Abilities plugin main file: header constants, then the category registration."
+  },
+  {
+   "id": "b46",
+   "beat": "b46",
+   "mode": "vo",
+   "delivery": "Steady walkthrough.",
+   "on_screen": "Ability registration hook, then the abilities folder in the explorer."
+  },
+  {
+   "id": "b47",
+   "beat": "b47",
+   "mode": "vo",
+   "delivery": "Slightly slower on the capability name; read the command clearly.",
+   "on_screen": "casagees_abilities_can_manage() callback, then the wp user add-cap terminal."
+  },
+  {
+   "id": "b48",
+   "beat": "b48",
+   "mode": "th",
+   "delivery": "Firm, landing the point; 'only one user has the key'."
+  },
+  {
+   "id": "b49",
+   "beat": "b49",
+   "mode": "vo",
+   "delivery": "Walkthrough, even pace.",
+   "on_screen": "Order slots ability file open on the slot schema array."
+  },
+  {
+   "id": "b50",
+   "beat": "b50",
+   "mode": "vo",
+   "delivery": "Walkthrough; small lift on 'Then the two that matter.'",
+   "on_screen": "Register call: casagees/get-order-slots, label, description, category."
+  },
+  {
+   "id": "b51a",
+   "beat": "b51",
+   "sentences": [
+    140,
+    141
+   ],
+   "mode": "vo",
+   "delivery": "Walkthrough, steady through the list of what it does.",
+   "on_screen": "execute_callback, scrolling through the database queries."
+  },
+  {
+   "id": "b51b",
+   "beat": "b51",
+   "sentences": [
+    142,
+    142
+   ],
+   "mode": "th",
+   "delivery": "Relaxed aside to camera."
+  },
+  {
+   "id": "b52",
+   "beat": "b52",
+   "mode": "th",
+   "delivery": "Quick; say the function name over the screen, 'Same padlock' back to camera."
+  },
+  {
+   "id": "b53",
+   "beat": "b53",
+   "mode": "th",
+   "delivery": "Plain summary; clear contrast between 'fetches' and 'writes'."
+  },
+  {
+   "id": "b54",
+   "beat": "b54",
+   "mode": "vo",
+   "delivery": "Explanatory, unhurried; pause after the first sentence.",
+   "on_screen": "Get ability's input_schema; date, availability and limit properties highlighted."
+  },
+  {
+   "id": "b55",
+   "beat": "b55",
+   "mode": "vo",
+   "delivery": "Explanatory.",
+   "on_screen": "output_schema highlighted, scrolling its properties."
+  },
+  {
+   "id": "b56",
+   "beat": "b56",
+   "mode": "th",
+   "delivery": "The big idea, direct to camera; three even beats, grin on 'Sweet huh!'"
+  },
+  {
+   "id": "b57",
+   "beat": "b57",
+   "mode": "vo",
+   "delivery": "Slightly slower, a heads-up; 'Easy one to miss.' dry.",
+   "on_screen": "Ability meta array, 'mcp' => array( 'public' => true ) highlighted."
+  },
+  {
+   "id": "b58",
+   "beat": "b58",
+   "mode": "th",
+   "delivery": "Reflective and honest; 'I trust it.' on its own."
+  },
+  {
+   "id": "b59",
+   "beat": "b59",
+   "mode": "th",
+   "delivery": "Warm sign-off, framed left; leave a beat after 'Happy building.'"
+  }
+ ],
+ "reanchor": [
+  {
+   "cue": "b06.sr1",
+   "from": null,
+   "to": {
+    "sentence": 17
+   },
+   "retime": {
+    "from": {
+     "to_phrase": "which is Subscriber"
+    },
+    "to": "segment"
+   },
+   "reason": "b06a is a voiceover now, so the dropdown bed has to cover all of it; the warning in b06b is on camera."
+  },
+  {
+   "cue": "b11.mg1",
+   "from": null,
+   "to": {
+    "sentence": 32
+   },
+   "retime": {
+    "from": {
+     "to_phrase": "having the adapter installed does nothing"
+    },
+    "to": "segment"
+   },
+   "reason": "b11a is a voiceover over the three icons; the lead into the analogy (b11b) is on camera."
+  },
+  {
+   "cue": "b16.sr1",
+   "from": null,
+   "to": {
+    "sentence": 48
+   },
+   "reason": "b16a went to camera; the editor starts at b16b."
+  },
+  {
+   "cue": "b29.sr1",
+   "from": null,
+   "to": {
+    "sentence": 76
+   },
+   "retime": {
+    "from": {
+     "to_phrase": "connected and running"
+    },
+    "to": "segment"
+   },
+   "reason": "b29 is a voiceover; 'Sweet huh!' is too short to be its own talking-head segment."
+  },
+  {
+   "cue": "b30.mg1",
+   "from": null,
+   "to": {
+    "sentence": 79
+   },
+   "retime": {
+    "from": {
+     "to_phrase": "an entry for your connection"
+    },
+    "to": "segment"
+   },
+   "reason": "b30 is a voiceover; 'That's it.' is too short to be its own talking-head segment."
+  },
+  {
+   "cue": "b39.mg1",
+   "from": null,
+   "to": {
+    "sentence": 99
+   },
+   "retime": {
+    "from": {
+     "to_phrase": "so use both"
+    },
+    "to": "segment"
+   },
+   "reason": "b39a is a voiceover over the two layers; 'Belt and braces.' is on camera in b39b."
+  },
+  {
+   "cue": "b51.sr1",
+   "from": null,
+   "to": {
+    "sentence": 140
+   },
+   "retime": {
+    "from": {
+     "to_phrase": "something to reason with"
+    },
+    "to": "segment"
+   },
+   "reason": "b51a is a voiceover over the execute callback; the aside in b51b is on camera."
+  },
+  {
+   "cue": "b52.sr1",
+   "from": null,
+   "to": {
+    "sentence": 143
+   },
+   "retime": {
+    "from": null,
+    "to": {
+     "to_phrase": "casagees_abilities_can_manage"
+    }
+   },
+   "reason": "b52 stays on camera for 'Same padlock, wired in here.'; the code becomes a cutaway ending on the function name."
+  }
+ ],
+ "judgement_calls": [
+  {
+   "segment": "b06a",
+   "note": "Split b06: the role instruction is pure screen, the warning about handing an AI admin is an opinion to camera, which is what the paper edit's visual asks for."
+  },
+  {
+   "segment": "b11a",
+   "note": "Split b11 so the icon graphic sits on a clean voiceover and the lead into the analogy is on camera with b12 to b15."
+  },
+  {
+   "segment": "b14",
+   "note": "Kept on camera although the padlock graphic covers sentences 41 and 42 (about three quarters of the beat): the analogy section is meant to be warm and on camera, and 'That's the whole point...' has to land to lens."
+  },
+  {
+   "segment": "b16a",
+   "note": "Split b16: 'the docs don't tell you where it lives, so let's do that' is a promise to the viewer, so it goes on camera after the chapter card; the bed moves to sentence 48."
+  },
+  {
+   "segment": "b21",
+   "note": "Kept on camera (no bed, personal aside) even though it sits between voiceovers; with b23b and b24 this stretch cuts between face and screen every 6 to 20 seconds, which is deliberate for the asides."
+  },
+  {
+   "segment": "b23b",
+   "note": "Split b23 so the security point ('never ends up in a file that could accidentally get committed') goes to camera and runs straight into the 'numpty' line, rather than b24 standing alone for five seconds."
+  },
+  {
+   "segment": "b29",
+   "note": "The paper edit wants 'Sweet huh!' on camera, but it's a two-word fragment and can't be its own segment, and a cutaway covering 90% of a talking head is really a voiceover. Made it VO with the bed over the whole segment; the b29.sr1 brief still says 'back to face', so the editor can ignore that or drop in a one-second face pop from elsewhere."
+  },
+  {
+   "segment": "b30",
+   "note": "Same as b29: 'That's it.' is too short to stand alone, so the whole recap is VO over the checklist, and the b30.mg1 brief's 'back to face' no longer applies."
+  },
+  {
+   "segment": "b31",
+   "note": "A single on-camera line (about six seconds) between two runs of voiceover. No bed so it has to be TH; it works as the chapter opener for the Shop Manager test."
+  },
+  {
+   "segment": "b37",
+   "note": "Kept on camera; the paper edit's CLAUDE.md screen is an overlay running from 'Tell the AI' to the end of the beat, so only 'So put the rules in writing.' shows the face. Consider whether the paper edit wants that as a bed with a VO sub-beat instead."
+  },
+  {
+   "segment": "b39b",
+   "note": "Split b39: 'Belt and braces.' is exactly three words, so it can stand as its own talking-head segment and hands straight into the long on-camera run from b40."
+  },
+  {
+   "segment": "b51b",
+   "note": "Split b51 so the 'it's a video in its own right' aside is on camera, as the paper edit's brief asks."
+  },
+  {
+   "segment": "b52",
+   "note": "Kept on camera with the code as a timed cutaway so b51b to b53 is one on-camera run of about 30 seconds instead of cutting face, screen, face every eight seconds."
+  }
+ ]
+}

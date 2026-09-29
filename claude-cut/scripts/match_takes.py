@@ -268,6 +268,15 @@ def main() -> None:
     ap.add_argument("--merge-gap", type=float, default=1.0,
                     help="Merge kept ranges closer than this many seconds")
     ap.add_argument("--min-take-coverage", type=float, default=0.8)
+    ap.add_argument("--marker-scope", choices=["chunk", "sentence"],
+                    default="chunk",
+                    help="What 'retake cut' bins. chunk (default, v0.4.0): "
+                         "everything since the last pause. sentence: only "
+                         "from where the retaken sentence began, keeping good "
+                         "lines said in the same breath before it.")
+    ap.add_argument("--sentences-out", type=Path,
+                    help="Also write per-sentence timings (s1, s2...) for the "
+                         "pipeline's conform stage. Doesn't change the cut.")
     args = ap.parse_args()
 
     data = json.loads(args.transcript.read_text())
@@ -281,7 +290,12 @@ def main() -> None:
     chunks = chunk_words(words)
     chunks = mark_keyword(chunks, args.keyword)
     match_chunks(chunks, sentences)
-    apply_markers(chunks)
+    if args.marker_scope == "sentence":
+        from retake_scope import apply_markers_sentence
+        chunks = apply_markers_sentence(chunks, sentences,
+                                        lambda ws: Chunk(words=ws), match_chunks)
+    else:
+        apply_markers(chunks)
     last_take_wins(chunks, args.min_take_coverage, sentences)
     ranges = build_ranges(chunks, args.handles, args.merge_gap)
 
@@ -296,6 +310,10 @@ def main() -> None:
     if args.report:
         write_report(args.report, chunks, ranges, sentences,
                      data.get("duration", 0))
+    if args.sentences_out:
+        from sentence_timings import write_sentence_timings
+        write_sentence_timings(args.sentences_out, args.transcript, args.script,
+                               data, chunks, ranges, sentences)
     kept = sum(r["end"] - r["start"] for r in ranges)
     print(f"Kept {kept:.1f}s of {data.get('duration', 0):.1f}s "
           f"in {len(ranges)} ranges -> {args.output}")

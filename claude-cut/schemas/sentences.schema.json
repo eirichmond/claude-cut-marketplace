@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/sentences.schema.json",
+  "title": "claude-cut/sentences@1: per-sentence timings from a take selection (match_takes.py --sentences-out)",
+  "description": "s numbers are match_takes' own: s1 is the first sentence split_sentences finds in the script it was given. Times are source seconds in the recording.",
+  "type": "object",
+  "required": ["schema", "created", "inputs", "source", "sentences", "unaligned"],
+  "properties": {
+    "schema": {"const": "claude-cut/sentences@1"},
+    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "inputs": {
+      "type": "object",
+      "required": ["script", "transcript"],
+      "properties": {
+        "script": {"$ref": "_defs.schema.json#/$defs/inputRef"},
+        "transcript": {"$ref": "_defs.schema.json#/$defs/inputRef"}
+      },
+      "additionalProperties": false
+    },
+    "source": {"type": "string"},
+    "sentences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["s", "status"],
+        "properties": {
+          "s": {"type": "integer", "minimum": 1},
+          "status": {"enum": ["kept", "rescued", "missing"]},
+          "start": {"type": "number", "minimum": 0},
+          "end": {"type": "number", "minimum": 0},
+          "score": {"type": "integer", "minimum": 0, "maximum": 100},
+          "words": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["w", "start", "end"],
+              "properties": {
+                "w": {"type": "string"},
+                "start": {"type": "number"},
+                "end": {"type": "number"}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "if": {"properties": {"status": {"const": "missing"}}},
+        "then": {"not": {"anyOf": [{"required": ["start"]}, {"required": ["words"]}]}},
+        "else": {"required": ["start", "end", "words"]},
+        "additionalProperties": false
+      }
+    },
+    "unaligned": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["start", "end", "text"],
+        "properties": {
+          "start": {"type": "number"},
+          "end": {"type": "number"},
+          "text": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

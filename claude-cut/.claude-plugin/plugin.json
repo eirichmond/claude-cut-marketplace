@@ -1,7 +1,7 @@
 {
   "name": "claude-cut",
-  "version": "0.4.0",
-  "description": "Automated take selection for prompter-scripted videos. Transcribes the master audio, syncs A/B roll shot at different frame rates, keeps the last take of each script section (honouring the spoken 'retake cut' marker), trims dead air, and exports a DaVinci Resolve timeline XML plus a human-readable cut report.",
+  "version": "0.5.0",
+  "description": "Video pipeline for prompter-scripted YouTube videos. edit-takes (standalone, as before) transcribes the master audio, syncs A/B roll, keeps the last take of each script section honouring the spoken 'retake cut' marker, and exports a DaVinci Resolve timeline. The full pipeline adds paper-edit, director (TH/VO split and prompters), voiceover cuts (--vo), conform and assemble, taking a finished script to an assembled Resolve timeline with markers.",
   "author": {
     "name": "Elliott Richmond"
   }

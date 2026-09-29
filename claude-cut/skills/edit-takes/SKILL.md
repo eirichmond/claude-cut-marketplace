@@ -23,10 +23,14 @@ From the user's message or the current directory, find:
 2. **B-roll file** (optional) — iPhone footage, may start at a different time
 3. **Script file** — markdown or plain text, the prompter script
 4. Optional overrides: `--keyword` (default "retake cut"), `--handles` (default 0.25s),
-   `--min-take-coverage` (default 0.8), `--pad` etc.
+   `--min-take-coverage` (default 0.8), `--marker-scope` (default `chunk`), `--pad` etc.
 
 If you cannot unambiguously identify which file is which, ASK. Do not guess which
 clip holds the master audio.
+
+If the user passes `--vo <audio file>` (a voiceover recorded as one continuous
+audio file), it's a voiceover run: there's no A-roll or B-roll. Follow
+"Voiceover runs (--vo)" below instead of steps 2 and 4.
 
 ## Dependencies
 
@@ -99,6 +103,63 @@ sections that were kept by default). Tell them the fcpxml filename and to
 import it via File > Import > Timeline in Resolve, into a FRESH project with
 'Automatically import source clips into media pool' ticked (pre-loading clips
 into the pool triggers Resolve's stricter timecode matcher and can fail).
+
+## Retake scope (--marker-scope)
+
+By default (`chunk`, as in v0.4.0) "retake cut" bins everything said since
+the last pause. If the user fluffs a line mid-flow and restarts from that
+line, good sentences said in the same breath before it are lost; the report
+shows them as `BINNED (before marker)` with nothing kept for their sentence.
+
+`--marker-scope sentence` bins only from where the retaken sentence began,
+keeping the earlier lines (report reason: `before marker (retaken)`). Pass
+it to match_takes when the user asks for it, and suggest it when a report
+shows good lines lost that way. Standalone runs keep the default unless
+asked.
+
+## Voiceover runs (--vo)
+
+`--vo vo.wav` (any audio ffmpeg reads: .wav, .m4a, .mp3, or a video file's
+audio) means the voiceover was recorded separately, as one continuous file,
+against its own prompter script, with the same "retake cut" marker. Take
+selection is exactly the same; there's just no picture:
+
+1. Transcribe the VO file (step 1 as usual, with the VO file as the source).
+2. Skip sync: there's one source.
+3. Match takes (step 3 as usual, with the VO prompter as the script).
+4. Instead of the Resolve XML, render the kept audio so the user can listen
+   to the cut straight away:
+
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/render_audio_cut.py" .claude-cut/cuts.json \
+     --source <vo file> -o <projectname>_vo_cut.wav
+   ```
+
+5. Report back as in step 5, but point them at the `_vo_cut.wav` rather than
+   an fcpxml. There's nothing to import into Resolve from a VO run on its
+   own; in the full pipeline the assemble stage places the voiceover.
+
+Keep a voiceover run's working files separate from a talking-head run's in
+the same folder: use `.claude-cut/vo/` instead of `.claude-cut/` for its
+transcript, cuts, report and sentences.
+
+## Pipeline use (only when asked)
+
+When edit-takes runs as the cut stage of the full pipeline it runs twice:
+once for the talking heads (A-roll, optional B-roll, `th.prompter.md`,
+working files in `.claude-cut/th/`) and once with `--vo` (the voiceover
+file, `vo.prompter.md`, working files in `.claude-cut/vo/`). In both, step 3
+also writes per-sentence timings for the conform stage:
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/match_takes.py" .claude-cut/transcript.json <prompter> \
+  -o .claude-cut/cuts.json --report .claude-cut/report.md \
+  --marker-scope sentence --sentences-out .claude-cut/sentences.json
+```
+
+`--sentences-out` only adds a file. The pipeline always uses
+`--marker-scope sentence` (see above), so conform isn't handed lines lost to
+a mid-flow retake.
 
 ## Judgement calls
 
