@@ -1,6 +1,6 @@
 ---
 name: assemble
-description: Build the full DaVinci Resolve timeline from a conformed claude-cut plan: talking heads and voiceover interleaved in running order, the B-roll angle, screen recordings and b-roll on their own track, and a markers file for chapters, graphics and anything still missing. Use after the conform stage, or when the user asks to assemble the edit, build the Resolve timeline, or drop the screen recordings in.
+description: Build the full DaVinci Resolve timeline from a conformed claude-cut plan, with talking heads and voiceover interleaved in running order, the B-roll angle, screen recordings and b-roll on their own track, and a markers file for chapters, graphics and anything still missing. Use after the conform stage, or when the user asks to assemble the edit, build the Resolve timeline, or drop the screen recordings in.
 ---
 
 # Assemble: the Resolve timeline

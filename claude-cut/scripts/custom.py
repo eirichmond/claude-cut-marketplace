@@ -2,7 +2,7 @@
 """One-off (custom) compositions for mg cues: brief, scaffold, check.
 
 Usage:
-    python custom.py brief GRAPHICS_DIR CUE [--plan P] [--json]
+    python custom.py brief GRAPHICS_DIR (CUE | --all) [--plan P] [--json]
     python custom.py new   GRAPHICS_DIR CUE [--plan P] [--headline TEXT] [--force]
     python custom.py check GRAPHICS_DIR CUE [CUE..] [--plan P] [--shoot S]
                            [--no-hf] [--at 0.5,1.2]
@@ -12,7 +12,8 @@ GRAPHICS_DIR/compositions/<cue>.html, authored with the HyperFrames skills
 in the graphics project (so they read the same frame.md) and listed in
 graphics.json as {"cue", "template": "custom", "composition"}.
 
-  brief   everything the author needs: the brief, the words spoken, exact
+  brief   (any graphic cue, or --all of them in timeline order) everything
+          the author needs: the brief, the words spoken, exact
           length, overlay or full frame, what's underneath, the identity's
           colour and type names, and the house rules.
   new     writes the house shell at the cue's exact length with a
@@ -137,16 +138,22 @@ def brief(project: Path, cue_id: str, plan_path: Path | None = None) -> dict:
     }
 
 
-def brief_text(b: dict) -> str:
-    return "\n".join([
+def brief_text(b: dict, identity: bool = True) -> str:
+    lines = [
         f"{b['cue']} ({b['kind']}, {b['layer']}): {b['brief']}",
-        f"  length    {b['frames']} frames at {b['fps']} = {b['seconds']}s "
-        f"(data-duration must be exactly this)",
+        f"  length    {b['frames']} frames at {b['fps']} = {b['seconds']}s",
         f"  spoken    {b['spoken'] or '(not available)'}",
         f"  under it  {b['underneath']}",
-        f"  file      {b['file']}{'' if b['exists'] else ' (not written yet: custom.py new)'}",
+        f"  custom    {b['file']}{' (exists)' if b['exists'] else ' (none)'}",
+    ]
+    return "\n".join(lines + ([identity_text(b)] if identity else []))
+
+
+def identity_text(b: dict) -> str:
+    return "\n".join([
+        "identity (frame.md):",
         f"  colours   var(--{'), var(--'.join(b['colors'])})",
-        f"  type      {', '.join(b['type_roles'])} (frame.md typography roles)",
+        f"  type      {', '.join(b['type_roles'])}",
         f"  fonts     {', '.join(f'{k}: {v}' for k, v in b['fonts'].items())}",
     ])
 
@@ -325,9 +332,12 @@ def main() -> None:
     for name in ("brief", "new", "check"):
         p = sub.add_parser(name)
         p.add_argument("project", type=Path)
-        p.add_argument("cues" if name == "check" else "cue", nargs="+" if name == "check" else None)
+        p.add_argument("cues" if name == "check" else "cue",
+                       nargs="+" if name == "check" else "?" if name == "brief" else None)
         p.add_argument("--plan", type=Path)
         if name == "brief":
+            p.add_argument("--all", action="store_true",
+                           help="every graphic cue in the plan, in timeline order")
             p.add_argument("--json", action="store_true")
         if name == "new":
             p.add_argument("--headline")
@@ -340,8 +350,18 @@ def main() -> None:
     project = args.project.resolve()
     try:
         if args.cmd == "brief":
-            b = brief(project, args.cue, args.plan)
-            print(json.dumps(b, indent=1) if args.json else brief_text(b))
+            if args.all == bool(args.cue):
+                sys.exit("brief takes a CUE or --all")
+            ids = [args.cue] if args.cue else [
+                c["id"] for c in sorted(load(find_plan(project, args.plan))["cues"],
+                                        key=lambda c: c["tl"][0])
+                if c["kind"] in CUSTOM_KINDS]
+            out = [brief(project, i, args.plan) for i in ids]
+            if args.json:
+                print(json.dumps(out if args.all else out[0], indent=1))
+            else:
+                print("\n\n".join([brief_text(b, identity=False) for b in out] +
+                                    [identity_text(out[0])] if out else []))
         elif args.cmd == "new":
             path = new(project, args.cue, args.plan, args.headline, args.force)
             print(f"Wrote {path.relative_to(project)}: replace the placeholder design, "

@@ -1,6 +1,6 @@
 ---
 name: paper-edit
-description: Build a paper edit from a finished video script: split it into beats with stable IDs (b01, b02...) and call the on-screen visuals, b-roll, screen recordings, motion graphics, lower thirds, transitions and sound for each one. Use when turning a script into an editor's blueprint, planning post-production, or as the first stage of the claude-cut pipeline (before the director). Writes <script>.paper-edit.json plus a readable .md.
+description: Build a paper edit from a finished video script. Split it into beats with stable IDs (b01, b02...) and call the on-screen visuals, b-roll, screen recordings, motion graphics, lower thirds, transitions and sound for each one. Use when turning a script into an editor's blueprint, planning post-production, or as the first stage of the claude-cut pipeline (before the director). Writes <script>.paper-edit.json plus a readable .md.
 ---
 
 # Paper edit: script to editor's blueprint

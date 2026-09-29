@@ -55,6 +55,18 @@ def test_brief_has_what_the_author_needs(world):
     assert f"{b['frames']} frames at 25/1" in text and "var(--accent)" in text
 
 
+def test_brief_all_lists_every_graphic_in_timeline_order(world):
+    r = custom("brief", world["gfx"], "--all", "--json")
+    assert r.returncode == 0, r.stderr
+    got = [b["cue"] for b in json.loads(r.stdout)]
+    want = [c["id"] for c in sorted(world["plan"]["cues"], key=lambda c: c["tl"][0])
+            if c["kind"] in ("mg", "lt", "chapter", "callout")]
+    assert got == want
+    text = custom("brief", world["gfx"], "--all").stdout
+    assert text.count("identity (frame.md):") == 1
+    assert "brief takes a CUE or --all" in custom("brief", world["gfx"]).stderr
+
+
 def test_brief_says_what_an_overlay_sits_on(world):
     b = json.loads(custom("brief", world["gfx"], cue(world, layer="overlay")["id"],
                           "--json").stdout)
