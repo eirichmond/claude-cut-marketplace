@@ -28,6 +28,10 @@ From the user's message or the current directory, find:
 If you cannot unambiguously identify which file is which, ASK. Do not guess which
 clip holds the master audio.
 
+If the user passes `--vo <audio file>` (a voiceover recorded as one continuous
+audio file), it's a voiceover run: there's no A-roll or B-roll. Follow
+"Voiceover runs (--vo)" below instead of steps 2 and 4.
+
 ## Dependencies
 
 Check these are installed before starting; install what's missing (prefer pipx/pip
@@ -100,11 +104,39 @@ import it via File > Import > Timeline in Resolve, into a FRESH project with
 'Automatically import source clips into media pool' ticked (pre-loading clips
 into the pool triggers Resolve's stricter timecode matcher and can fail).
 
+## Voiceover runs (--vo)
+
+`--vo vo.wav` (any audio ffmpeg reads: .wav, .m4a, .mp3, or a video file's
+audio) means the voiceover was recorded separately, as one continuous file,
+against its own prompter script, with the same "retake cut" marker. Take
+selection is exactly the same; there's just no picture:
+
+1. Transcribe the VO file (step 1 as usual, with the VO file as the source).
+2. Skip sync: there's one source.
+3. Match takes (step 3 as usual, with the VO prompter as the script).
+4. Instead of the Resolve XML, render the kept audio so the user can listen
+   to the cut straight away:
+
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/render_audio_cut.py" .claude-cut/cuts.json \
+     --source <vo file> -o <projectname>_vo_cut.wav
+   ```
+
+5. Report back as in step 5, but point them at the `_vo_cut.wav` rather than
+   an fcpxml. There's nothing to import into Resolve from a VO run on its
+   own; in the full pipeline the assemble stage places the voiceover.
+
+Keep a voiceover run's working files separate from a talking-head run's in
+the same folder: use `.claude-cut/vo/` instead of `.claude-cut/` for its
+transcript, cuts, report and sentences.
+
 ## Pipeline use (only when asked)
 
-When edit-takes runs as the cut stage of the full pipeline, the script is a
-generated prompter (`th.prompter.md` or `vo.prompter.md`) and step 3 also
-writes per-sentence timings for the conform stage:
+When edit-takes runs as the cut stage of the full pipeline it runs twice:
+once for the talking heads (A-roll, optional B-roll, `th.prompter.md`,
+working files in `.claude-cut/th/`) and once with `--vo` (the voiceover
+file, `vo.prompter.md`, working files in `.claude-cut/vo/`). In both, step 3
+also writes per-sentence timings for the conform stage:
 
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/scripts/match_takes.py" .claude-cut/transcript.json <prompter> \

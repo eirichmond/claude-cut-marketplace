@@ -51,6 +51,16 @@ A-roll only works too:
 claude-cut aroll.mov script.md
 ```
 
+A voiceover recorded as one continuous audio file, against its own prompter
+script, same "retake cut" marker:
+
+```bash
+claude-cut --vo vo.wav vo.prompter.md
+```
+
+That gives `<project>_vo_cut.wav` (the kept takes, joined) and the usual
+report, instead of a Resolve timeline.
+
 ## Shooting conventions the pipeline relies on
 
 - One master audio source (the A-roll clip by default)
