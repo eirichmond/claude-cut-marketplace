@@ -17,6 +17,7 @@ import argparse
 import json
 import re
 import sys
+from fractions import Fraction
 from pathlib import Path
 
 from handoff import (CUE_RE, SCHEMA_DIR, HandoffError, load, phrase_in,
@@ -115,9 +116,13 @@ def check_graphics_spec(path: Path, doc: dict) -> list[str]:
             comp = base / g["composition"]
             if not comp.exists():
                 errs.append(f"{g['cue']}: {g['composition']} doesn't exist")
-            elif tok:
-                errs += [f"{g['cue']}: {i}"
-                         for i in identity.check(comp.read_text(), tok)]
+            elif tok and c:
+                import custom
+                frames = c["tl"][1] - c["tl"][0]
+                errs += [f"{g['cue']}: {i}" for i in custom.house_rules(
+                    comp.read_text(), tok=tok, comp_dir=comp.parent,
+                    seconds=float(Fraction(frames) / Fraction(plan["timeline"]["fps"])),
+                    overlay=c.get("layer", "overlay") != "full")]
         else:
             try:
                 errs += [f"{g['cue']} ({g['template']}): {e}"

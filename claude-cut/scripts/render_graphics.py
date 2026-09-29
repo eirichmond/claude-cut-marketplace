@@ -87,6 +87,19 @@ def comp_duration(html: str) -> float | None:
     return float(m.group(1)) if m else None
 
 
+def local_files_hash(html: str, comp_dir: Path) -> str:
+    """Hash of the local files a composition uses (assets/, fonts, GSAP), so
+    replacing an image re-renders the cues that show it."""
+    from custom import LOCAL
+    h = hashlib.sha256()
+    for ref in sorted({(m.group(1) or m.group(2) or "").strip()
+                       for m in LOCAL.finditer(html)}):
+        f = comp_dir / ref
+        if ref and f.is_file():
+            h.update(ref.encode() + sha256(f).encode())
+    return h.hexdigest()
+
+
 # --- rendering ---------------------------------------------------------------
 
 def hyperframes(project: Path, comp: str, out: Path, fps: int, size: str,
@@ -270,7 +283,8 @@ def render_all(project: Path, shoot_path: Path | None, only: set | None,
                             f"{want:.6f}s ({frames} frames at {plan['timeline']['fps']})")
             continue
         spec_hash = hashlib.sha256("|".join(map(str, (
-            RENDER_VERSION, hashlib.sha256(html.encode()).hexdigest(), frames,
+            RENDER_VERSION, hashlib.sha256(html.encode()).hexdigest(),
+            local_files_hash(html, (project / comp_rel).parent), frames,
             plan["timeline"]["fps"], render_fps, size, overlay, frame_sha, quality)))
             .encode()).hexdigest()
         final = renders / f"{g['cue']}.mov"

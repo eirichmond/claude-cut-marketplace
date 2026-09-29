@@ -140,8 +140,29 @@ def test_custom_composition_must_last_as_long_as_its_cue(world):
     finally:
         comp.write_text(original)
     assert r.returncode == 1
-    assert f"{custom['cue']}: {custom['composition']} lasts 9" in r.stderr
+    # caught by validation (custom.py's house rules), before anything renders
+    assert f"{custom['cue']}: data-duration is 9" in r.stderr
     assert "the cue needs" in r.stderr
+
+
+def test_changing_an_asset_rerenders_the_cues_that_use_it(world):
+    custom = next(g for g in graphics_body(world)["graphics"]
+                  if g["template"] == "custom")
+    comp = world["gfx"] / custom["composition"]
+    original = comp.read_text()
+    asset = world["gfx"] / "assets" / "shot.png"
+    asset.parent.mkdir(exist_ok=True)
+    asset.write_bytes(b"one")
+    try:
+        comp.write_text(original.replace("</body>", '<img src="../assets/shot.png"></body>'))
+        assert render(world).returncode == 0
+        asset.write_bytes(b"two")
+        r = render(world)
+        assert r.returncode == 0, r.stderr
+        assert r.stdout.count("rendered ") == 1 and f"rendered {custom['cue']}" in r.stdout
+    finally:
+        comp.write_text(original)
+        render(world)
 
 
 def test_sfx_stem_is_full_length_stereo_with_effects_at_their_frames(world):
