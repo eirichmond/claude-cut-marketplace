@@ -173,3 +173,28 @@ def test_lone_word_matches_elsewhere_are_ignored():
     # 'building' also appears in a later, never-spoken sentence
     assert align(words, ["Nothing to see here.",
                          "We are building a thing."]) == [None, None]
+
+
+def test_fcpxml_identical_to_v040(tmp_path):
+    """The whole standalone path (cut + timeline) matches v0.4.0 byte for
+    byte on a timecoded dummy A-roll, now that there's footage to build on."""
+    from conftest import FIXTURES, synthetic_cut
+    src = subprocess.run(
+        ["git", "show", f"{V040}:claude-cut/scripts/build_xml.py"],
+        cwd=ROOT, capture_output=True, text=True)
+    if src.returncode != 0:
+        pytest.skip("can't read v0.4.0 build_xml.py from git")
+    old = tmp_path / "v040" / "build_xml.py"
+    old.parent.mkdir()
+    old.write_text(src.stdout)
+    synthetic_cut(FIXTURES / "mcp-setup", tmp_path / "cut")
+    th = tmp_path / "cut" / "th"
+    out_old = tmp_path / "old_cut.fcpxml"
+    r = subprocess.run([sys.executable, str(old), th / "cuts.json", "--aroll",
+                        tmp_path / "cut" / "aroll.mp4", "-o", out_old],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    new = (th / "cut.fcpxml").read_text()
+    # only the output file's own name differs between the two runs
+    assert new.replace("cut.fcpxml", "") == \
+        out_old.read_text().replace("old_cut.fcpxml", "")

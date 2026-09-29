@@ -495,6 +495,10 @@ def validate_file(path: Path) -> tuple[str | None, list[str]]:
             pe, script = load_paper_edit(path)
             return kind, (_prefixed("script", _schema_errors(script.doc, "script"))
                           or check_paper_edit(pe, script))
+        if kind == "plan-resolved":
+            for role in doc["inputs"]:
+                resolve_input(path, doc, role)
+            return kind, []
         if kind == "prompter-map":
             resolve_input(path, doc, "director")
             return kind, check_prompter_map(path, doc)

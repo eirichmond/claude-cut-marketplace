@@ -130,3 +130,46 @@ class Chain:
 @pytest.fixture
 def chain(tmp_path):
     return Chain(tmp_path)
+
+
+# --- synthetic cut: recordings -> match_takes -> edit-takes timeline -------------
+
+def synthetic_cut(prompters: Path, out: Path, fluff_every: int = 6,
+                  keep=None, fps: int = 25, segment_pause: float = 1.6) -> dict:
+    """Synthesise TH/VO recordings of the prompters in `prompters`, cut them
+    with the real match_takes (--sentences-out) and build the TH timeline
+    with the real build_xml/auto-editor. Returns the utterance plan per
+    mode. `keep(u)` can drop utterances to simulate things not recorded."""
+    from make_synthetic_fixture import dummy_aroll, plan, transcript_mode
+    expected = {}
+    for mode in ("th", "vo"):
+        prompter = prompters / f"{mode}.prompter.md"
+        if not prompter.exists():
+            continue
+        utts = plan(mode, prompter.read_text(), fluff_every, segment_pause)
+        if keep:
+            utts = [u for u in utts if keep(mode, u)]
+        if not utts:
+            continue
+        secs = transcript_mode(mode, utts, out)
+        d = out / mode
+        r = run_script("match_takes.py", d / "transcript.json", prompter,
+                       "-o", d / "cuts.json", "--report", d / "report.md",
+                       "--sentences-out", d / "sentences.json")
+        assert r.returncode == 0, r.stderr
+        if mode == "th":
+            aroll = dummy_aroll(out, secs, fps, None)
+            r = run_script("build_xml.py", d / "cuts.json", "--aroll", aroll,
+                           "-o", d / "cut.fcpxml")
+            assert r.returncode == 0, r.stderr + r.stdout
+        expected[mode] = utts
+    return expected
+
+
+def run_conform(director: Path, pmap: Path, cut: Path, out: Path, *extra):
+    args = ["--director", director, "--map", pmap, "-o", out]
+    if (cut / "th").exists():
+        args += ["--th", cut / "th", "--th-fcpxml", cut / "th" / "cut.fcpxml"]
+    if (cut / "vo").exists():
+        args += ["--vo", cut / "vo"]
+    return run_script("conform.py", *args, *extra)
