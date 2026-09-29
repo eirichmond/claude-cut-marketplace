@@ -211,9 +211,9 @@ reanchors), and the judgement calls. Remind them:
 - Record the talking heads from `th.prompter.md` in one sitting and the
   voiceovers from `vo.prompter.md` as **one continuous audio file**, reading
   straight through in order.
-- Say "retake cut" before going again, as usual, and then restart from the
-  start of the paragraph (or, for a short segment, from its heading), not
-  just the fluffed sentence. Until the opt-in retake fix lands, a retake
-  can bin good lines said in the same breath as the fluff.
+- Say "retake cut" before going again, as usual, with a clear pause either
+  side, then restart from the fluffed sentence or the paragraph, whichever
+  is natural. The pipeline's cut keeps good lines said in the same breath
+  before a fluff.
 - The `## b05` headings are for them to keep their place; they're not read
   out.

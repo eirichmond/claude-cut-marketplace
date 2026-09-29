@@ -23,7 +23,7 @@ From the user's message or the current directory, find:
 2. **B-roll file** (optional) — iPhone footage, may start at a different time
 3. **Script file** — markdown or plain text, the prompter script
 4. Optional overrides: `--keyword` (default "retake cut"), `--handles` (default 0.25s),
-   `--min-take-coverage` (default 0.8), `--pad` etc.
+   `--min-take-coverage` (default 0.8), `--marker-scope` (default `chunk`), `--pad` etc.
 
 If you cannot unambiguously identify which file is which, ASK. Do not guess which
 clip holds the master audio.
@@ -104,6 +104,19 @@ import it via File > Import > Timeline in Resolve, into a FRESH project with
 'Automatically import source clips into media pool' ticked (pre-loading clips
 into the pool triggers Resolve's stricter timecode matcher and can fail).
 
+## Retake scope (--marker-scope)
+
+By default (`chunk`, as in v0.4.0) "retake cut" bins everything said since
+the last pause. If the user fluffs a line mid-flow and restarts from that
+line, good sentences said in the same breath before it are lost; the report
+shows them as `BINNED (before marker)` with nothing kept for their sentence.
+
+`--marker-scope sentence` bins only from where the retaken sentence began,
+keeping the earlier lines (report reason: `before marker (retaken)`). Pass
+it to match_takes when the user asks for it, and suggest it when a report
+shows good lines lost that way. Standalone runs keep the default unless
+asked.
+
 ## Voiceover runs (--vo)
 
 `--vo vo.wav` (any audio ffmpeg reads: .wav, .m4a, .mp3, or a video file's
@@ -141,11 +154,12 @@ also writes per-sentence timings for the conform stage:
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/scripts/match_takes.py" .claude-cut/transcript.json <prompter> \
   -o .claude-cut/cuts.json --report .claude-cut/report.md \
-  --sentences-out .claude-cut/sentences.json
+  --marker-scope sentence --sentences-out .claude-cut/sentences.json
 ```
 
-This adds a file and changes nothing else: `cuts.json`, `report.md` and the
-fcpxml are identical with or without it. Don't add it on standalone runs.
+`--sentences-out` only adds a file. The pipeline always uses
+`--marker-scope sentence` (see above), so conform isn't handed lines lost to
+a mid-flow retake.
 
 ## Judgement calls
 

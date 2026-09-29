@@ -66,7 +66,7 @@ def real(tmp_path_factory):
         assert r.returncode == 0, r.stderr
         r = run_script("match_takes.py", d / "transcript.json",
                        MCP / f"{mode}.prompter.md", "-o", d / "cuts.json",
-                       "--report", d / "report.md",
+                       "--report", d / "report.md", "--marker-scope", "sentence",
                        "--sentences-out", d / "sentences.json")
         assert r.returncode == 0, r.stderr
     args = [out / "th" / "cuts.json", "--aroll", aroll, "-o",

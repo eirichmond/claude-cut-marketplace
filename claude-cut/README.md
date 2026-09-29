@@ -85,6 +85,10 @@ report, instead of a Resolve timeline.
 - `--merge-gap` — kept ranges closer than this get merged (1.0s)
 - `--min-take-coverage` — a final take must cover this fraction of its script
   sentence or it's flagged as partial (0.8)
+- `--marker-scope sentence` — "retake cut" bins only from where the retaken
+  sentence began, instead of everything since the last pause (the default,
+  `chunk`). Use it if you restart from the fluffed line rather than the
+  paragraph; the full pipeline always does.
 
 ## The full pipeline (v0.5)
 

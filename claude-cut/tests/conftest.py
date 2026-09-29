@@ -155,6 +155,7 @@ def synthetic_cut(prompters: Path, out: Path, fluff_every: int = 6,
         d = out / mode
         r = run_script("match_takes.py", d / "transcript.json", prompter,
                        "-o", d / "cuts.json", "--report", d / "report.md",
+                       "--marker-scope", "sentence",
                        "--sentences-out", d / "sentences.json")
         assert r.returncode == 0, r.stderr
         if mode == "th":
