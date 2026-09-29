@@ -111,11 +111,27 @@ Every graphic, screen, b-roll shot, zoom, blur, sound or marker is a cue:
 - **placement**:
   - `bed`: the full-frame picture of the beat (`sr`, `br` or `mg` only).
     Give a beat **at most one bed**, anchored at its first sentence (omit
-    `anchor`). If the picture changes for good, that's a new beat. A beat
-    that is clearly screen or b-roll led needs a bed: if the director makes
-    it a voiceover, the bed is what we see. If you mean the presenter's face
-    to come back within the beat, the bed is a cutaway: give it a
-    `duration` in seconds. With no duration it covers the whole beat.
+    `anchor`). If the picture changes for good, that's a new beat. There
+    are two kinds, and the choice matters to the director:
+    - **Full-length bed** (no `duration`): only for a **genuinely
+      screen-led** beat, where the words narrate what's on screen (a
+      walkthrough, a demo, code). It covers the whole beat, so it pushes
+      the beat towards voiceover.
+    - **Timed cutaway** (`duration` in seconds or `to_phrase`): the default
+      for anything with the presenter's personality in it, above all
+      **personal stories and key points**. The picture cuts to the screen
+      or b-roll and comes back to the face, so the beat can stay on
+      camera.
+    When in doubt, make it a timed cutaway: the director can always move a
+    bed into a voiceover part, but can only shorten one, never lengthen it.
+    Don't end a timed bed just before a short button line ("Sweet huh!",
+    "That's it."): under three words can't be its own talking-head segment,
+    so the face can't come back for it. Let the bed run the beat, or end it
+    on an earlier sentence.
+    A bed always starts at the beat's first sentence, so a timed bed is
+    "screen first, then face". If the beat **opens on the presenter and
+    then cuts away** (a story, a key point, an aside), it has no bed: use a
+    full-frame overlay cutaway (below) anchored where the cut happens.
   - `overlay`: on top of the picture, adds no time (lower thirds, callouts,
     zooms, blurs, sfx, overlay graphics). An `sr` or `br` overlay is a
     full-frame **cutaway that starts mid-beat**: anchor it where it starts,
@@ -171,7 +187,12 @@ Turn every script cue into cues, and record it in `script_cue`:
   mentioned") go in the briefs of the cues they govern, or in `notes`.
 - Edit instructions with no picture of their own ("[Cut to building the
   ability]") go in `transition_in` of the beat they lead into, with a
-  `marker` cue carrying the `script_cue` index.
+  `marker` cue carrying the `script_cue` index. Markers are
+  `"placement": "overlay"`, anchored where they apply.
+- A short flash that illustrates a spoken line ("quick flash of the
+  terminal, hold for two seconds") is a timed full-frame overlay anchored
+  on that line. Use `insert_before`/`insert_after` only when the moment
+  needs time of its own with no speech over it.
 - Things tied to the end of the video (end screen elements) are a
   `marker` cue on the last beat plus a line in `notes`. If the end screen
   needs a minimum length, set the last beat's `est_seconds` and say so in
@@ -182,6 +203,11 @@ the job. `write_handoff.py` lists any bracketed script cue you didn't use
 (other than talking-head notes), so you can check nothing was dropped.
 
 ## Step 4. Section and whole-video notes
+
+Finalise the beats before writing these: notes that mention beat IDs go
+stale silently if you merge or split beats afterwards. If the script has
+its own chapter list (often in its metadata), follow it for the beats'
+`chapter` titles unless the beats make a better case.
 
 - `sections`: for each script section worth a note,
   `{ "id": "sec02", "purpose": "..." }`: what the section is for and how it

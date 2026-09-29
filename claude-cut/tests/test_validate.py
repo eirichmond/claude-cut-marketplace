@@ -398,3 +398,87 @@ def test_chapter_is_a_beat_property(chain):
     def m(pe):
         pe["sections"] = [{"id": "sec02", "chapter": "1. Demo"}]
     assert any("sections/0" in e and "chapter" in e for e in pe_errors(chain, m))
+
+
+# --- retime and VO bed length ---------------------------------------------------
+
+def keep_b03_on_camera(d):
+    """Unsplit b03 as a talking head: its full-length bed b03.sr1 is
+    retimed into a cutaway ending at 'export button'."""
+    d["segments"][2:4] = [{"id": "b03", "beat": "b03", "mode": "th"}]
+    d["cues"] = []
+    d["judgement_calls"] = []
+    d["reanchor"] = [{"cue": "b03.sr1", "from": {"sentence": 5},
+                      "to": {"sentence": 5},
+                      "retime": {"from": None,
+                                 "to": {"to_phrase": "export button"}},
+                      "reason": "personal delivery; cut to screen for the "
+                                "first steps only"}]
+
+
+def test_retime_keeps_screen_beat_on_camera(chain):
+    assert d_errors(chain, keep_b03_on_camera) == []
+
+
+def test_retime_must_end_inside_the_segment(chain):
+    def phrase_outside(d):
+        keep_b03_on_camera(d)
+        d["reanchor"][0]["retime"]["to"] = {"to_phrase": "see you next time"}
+    assert any("retime to_phrase \"see you next time\" isn't in b03" in e
+               for e in d_errors(chain, phrase_outside))
+
+    def too_long(d):
+        keep_b03_on_camera(d)
+        d["reanchor"][0]["retime"]["to"] = {"seconds": 60}
+    assert any("retime to 60s runs past the end of b03" in e
+               for e in d_errors(chain, too_long))
+
+
+def test_retime_records_the_old_duration(chain):
+    def m(d):
+        keep_b03_on_camera(d)
+        d["reanchor"][0]["retime"]["from"] = "segment"
+    assert any("retime 'from' is \"segment\" but the paper edit's duration "
+               "is null" in e for e in d_errors(chain, m))
+
+
+def test_retime_can_only_shorten(chain):
+    def m(d):
+        keep_b03_on_camera(d)
+        d["reanchor"][0]["retime"]["to"] = "to_beat_end"
+    assert any("reanchor/0/retime/to" in e for e in d_errors(chain, m))
+
+
+def test_vo_bed_must_run_the_whole_segment(chain):
+    def timed_bed(d):
+        d["cues"][0]["duration"] = {"seconds": 2}
+    errs = d_errors(chain, timed_bed)
+    assert any("b03.sr2: bed on VO segment b03b must run the whole segment"
+               in e for e in errs)
+
+
+def test_timed_paper_edit_bed_on_vo_is_fixed_by_retime(chain):
+    def pe(p):
+        p["beats"][2]["cues"][1]["duration"] = {"to_phrase": "export button"}
+    assert any("b03.sr1: bed on VO segment b03a must run the whole segment"
+               in e for e in d_errors(chain, None, pe))
+
+    def d(dd):
+        dd["reanchor"] = [{"cue": "b03.sr1", "from": {"sentence": 5},
+                           "to": {"sentence": 5},
+                           "retime": {"from": {"to_phrase": "export button"},
+                                      "to": "segment"},
+                           "reason": "b03a is VO; the bed covers all of it"}]
+    assert d_errors(chain, d, pe) == []
+
+
+def test_note_when_cutaway_covers_most_of_a_th_segment(chain):
+    from validate import lint_file
+    def m(d):
+        keep_b03_on_camera(d)
+        d["reanchor"][0]["retime"]["to"] = {"to_phrase": "the whole demo"}
+    chain.build(d_mutate=m)
+    assert errors(chain.director) == []
+    notes = lint_file(chain.director)
+    assert any("b03.sr1: cutaway covers about" in n and "should it be VO?" in n
+               for n in notes), notes

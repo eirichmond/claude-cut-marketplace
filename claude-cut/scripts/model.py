@@ -120,8 +120,11 @@ def all_cues(paper_edit: dict, director: dict | None = None) -> list[dict]:
         for c in beat.get("cues", []):
             cue = {**c, "_beat": beat["id"], "_from": "paper-edit"}
             if c["id"] in moves:
-                cue["anchor"] = dict(moves[c["id"]]["to"])
-                cue["_reanchor"] = moves[c["id"]]
+                move = moves[c["id"]]
+                cue["anchor"] = dict(move["to"])
+                if "retime" in move:
+                    cue["duration"] = move["retime"]["to"]
+                cue["_reanchor"] = move
             cues.append(cue)
     if director:
         for c in director.get("cues", []):
@@ -146,3 +149,62 @@ def cue_anchor_sentence(cue: dict, beats: dict, cues_by_id: dict,
     if not target:
         return None
     return cue_anchor_sentence(target, beats, cues_by_id, _seen)
+
+
+# --- word positions (for checking cue timing before anything is recorded) --
+
+WPM = 150
+
+
+def segment_words(script: Script, seg: dict) -> list[tuple[int, str]]:
+    """(sentence number, normalised word) for every word in a segment."""
+    from handoff import norm_words
+    a, b = seg["sentences"]
+    return [(n, w) for n in range(a, b + 1)
+            for w in norm_words(script.by_n[n]["text"])]
+
+
+def find_phrase(words: list[tuple[int, str]], phrase: str,
+                start: int = 0, sentence: int | None = None) -> int | None:
+    """Index of the first word of `phrase` at or after `start` (optionally
+    only inside `sentence`), or None."""
+    from handoff import norm_words
+    p = norm_words(phrase)
+    toks = [w for _, w in words]
+    for i in range(start, len(toks) - len(p) + 1):
+        if toks[i:i + len(p)] == p and \
+                (sentence is None or words[i][0] == sentence):
+            return i
+    return None
+
+
+def anchor_index(words: list[tuple[int, str]], anchor: dict | None) -> int:
+    """Word index a sentence anchor points at within a segment (0 if the
+    anchor isn't in it)."""
+    if not anchor or "sentence" not in anchor:
+        return 0
+    first = next((i for i, (n, _) in enumerate(words)
+                  if n == anchor["sentence"]), 0)
+    if "phrase" in anchor:
+        at = find_phrase(words, anchor["phrase"], first, anchor["sentence"])
+        return first if at is None else at
+    return first
+
+
+def covered_words(words: list[tuple[int, str]], anchor: dict | None,
+                  duration) -> tuple[int, int] | None:
+    """Estimated [start, end) word span a cue covers inside its segment,
+    before any recording exists. None if the duration can't be placed."""
+    from handoff import norm_words
+    start = anchor_index(words, anchor)
+    if duration in (None, "segment", "to_beat_end"):
+        return start, len(words)
+    if isinstance(duration, dict) and "seconds" in duration:
+        return start, min(len(words),
+                          start + round(duration["seconds"] * WPM / 60))
+    if isinstance(duration, dict) and "to_phrase" in duration:
+        at = find_phrase(words, duration["to_phrase"], start)
+        if at is None:
+            return None
+        return start, at + len(norm_words(duration["to_phrase"]))
+    return None

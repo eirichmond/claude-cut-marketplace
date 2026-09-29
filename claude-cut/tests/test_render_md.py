@@ -46,3 +46,11 @@ def test_render_director_shows_reanchors(chain):
             "b03a went to camera; the screen starts at b03b |") in md
     vo = md.split("## 2. Voiceover shot list")[1].split("## 3.")[0]
     assert "*Bed:* `b03.sr1`" in vo and "(reanchored, see below)" in vo
+
+
+def test_render_director_shows_retime(chain):
+    from test_validate import keep_b03_on_camera
+    chain.build(d_mutate=keep_b03_on_camera)
+    md = render(chain.director)
+    assert ('| `b03.sr1` | sentence 5, whole segment | sentence 5, to '
+            '"export button" | b03 |') in md

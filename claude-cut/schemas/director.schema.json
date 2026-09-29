@@ -73,7 +73,7 @@
       }
     },
     "reanchor": {
-      "description": "Moves a paper-edit bed cue to a new sentence anchor inside the same parent beat. The cue's ID and brief never change. Validation runs after reanchors are applied.",
+      "description": "Moves a paper-edit bed cue to a new sentence anchor inside the same parent beat, and optionally retimes it to end inside its segment. The cue's ID and brief never change. Validation runs after reanchors are applied.",
       "type": "array",
       "items": {
         "type": "object",
@@ -104,6 +104,60 @@
           "reason": {
             "type": "string",
             "minLength": 1
+          },
+          "retime": {
+            "description": "Optionally shorten the bed as well: it must end inside the segment it lands on. 'from' is the paper edit's duration exactly (null if it had none).",
+            "type": "object",
+            "required": [
+              "from",
+              "to"
+            ],
+            "properties": {
+              "from": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "_defs.schema.json#/$defs/duration"
+                  }
+                ]
+              },
+              "to": {
+                "oneOf": [
+                  {
+                    "const": "segment"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "seconds"
+                    ],
+                    "properties": {
+                      "seconds": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "to_phrase"
+                    ],
+                    "properties": {
+                      "to_phrase": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
           }
         },
         "additionalProperties": false

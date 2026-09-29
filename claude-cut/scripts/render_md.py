@@ -80,7 +80,7 @@ def render_paper_edit(pe: dict, script: Script, src: Path) -> str:
     if notes.get("tone"):
         out += ["## Tone and style", "", notes["tone"], ""]
     if notes.get("blur_list"):
-        out += ["**Blur list:** " + "; ".join(notes["blur_list"]), ""]
+        out += ["## Blur list", ""] + [f"- {b}" for b in notes["blur_list"]] + [""]
     for k, v in notes.items():
         if k not in ("before_timeline", "tone", "blur_list"):
             out += [f"## {k.replace('_', ' ').capitalize()}", "", v, ""]
@@ -202,16 +202,28 @@ def render_director(d: dict, pe: dict, script: Script, src: Path) -> str:
     moves = d.get("reanchor", [])
     if moves:
         out += ["", "---", "", f"## {section_no}. Reanchored beds", "",
-                "Paper-edit bed cues the director moved within their beat. "
-                "The ID and brief are unchanged.", "",
+                "Paper-edit bed cues the director moved within their beat, "
+                "or shortened. The ID and brief are unchanged.", "",
                 "| Cue | Was | Now | Lands on | Reason |",
                 "|---|---|---|---|---|"]
         for r in moves:
             lands = owner.get(r["to"]["sentence"], "?")
-            out.append(f"| `{r['cue']}` | {describe_anchor(r['from'])} | "
-                       f"{describe_anchor(r['to'])} | {lands} | "
+            was, now = describe_anchor(r["from"]), describe_anchor(r["to"])
+            if "retime" in r:
+                was += f", {describe_duration(r['retime']['from'])}"
+                now += f", {describe_duration(r['retime']['to'])}"
+            out.append(f"| `{r['cue']}` | {was} | {now} | {lands} | "
                        f"{cell(r['reason'])} |")
     return "\n".join(out).rstrip() + "\n"
+
+
+def describe_duration(dur) -> str:
+    if dur in (None, "segment"):
+        return "whole segment"
+    if isinstance(dur, dict):
+        return (f"{dur['seconds']}s" if "seconds" in dur
+                else f"to \"{cell(dur['to_phrase'])}\"")
+    return dur.replace("_", " ")
 
 
 def describe_anchor(anchor: dict | None) -> str:

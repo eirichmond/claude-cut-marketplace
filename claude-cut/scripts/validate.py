@@ -21,8 +21,9 @@ from pathlib import Path
 
 from handoff import (CUE_RE, SCHEMA_DIR, HandoffError, load, phrase_in,
                      resolve_input, schema_kind)
-from model import (Script, all_cues, cue_anchor_sentence, load_director,
-                   load_paper_edit, segment_parts, segment_ranges,
+from model import (WPM, Script, all_cues, anchor_index, covered_words,
+                   cue_anchor_sentence, load_director, load_paper_edit,
+                   segment_parts, segment_ranges, segment_words,
                    sentence_owner)
 
 BED_KINDS = {"sr", "br", "mg"}
@@ -66,6 +67,23 @@ def check_script(doc: dict) -> list[str]:
     for s in doc["sentences"]:
         if s["section"] not in sec_ids:
             errs.append(f"sentence {s['n']}: unknown section {s['section']}")
+    return errs
+
+
+def check_prompter_map(path: Path, doc: dict) -> list[str]:
+    from handoff import sha256
+    errs = []
+    for mode, p in doc["prompters"].items():
+        f = Path(path).parent / p["path"]
+        if not f.exists():
+            errs.append(f"{mode}: prompter {p['path']} not found")
+        elif sha256(f) != p["sha256"]:
+            errs.append(f"{mode}: {p['path']} has been edited since the map "
+                        f"was built. Re-run build_prompters.py; never edit a "
+                        f"prompter by hand.")
+        ss = [e["s"] for e in p["sentences"]]
+        if ss != list(range(1, len(ss) + 1)):
+            errs.append(f"{mode}: sentences are not s1..sN in order")
     return errs
 
 
@@ -359,10 +377,20 @@ def check_director(doc: dict, pe: dict, script: Script) -> list[str]:
         if not sid:
             continue
         beds[sid].append(c["id"])
-        if seg_by_id[sid]["mode"] == "th" and \
-                c.get("duration", "segment") == "segment":
+        seg = seg_by_id[sid]
+        dur = c.get("duration", "segment")
+        if seg["mode"] == "th" and dur == "segment":
             errs.append(f"{c['id']}: bed lands on talking-head segment {sid}; "
                         f"a TH cutaway needs an explicit duration")
+        if seg["mode"] == "vo" and dur != "segment":
+            errs.append(f"{c['id']}: bed on VO segment {sid} must run the "
+                        f"whole segment (duration \"segment\" or none), got "
+                        f"{json.dumps(dur)}. VO length isn't known until it's "
+                        f"recorded; two pictures under one VO means two VO "
+                        f"sub-beats.")
+        retime = (c.get("_reanchor") or {}).get("retime")
+        if retime:
+            errs += _check_retime(c, seg, script)
     for seg in segments:
         if seg["mode"] != "vo":
             continue
@@ -377,7 +405,32 @@ def check_director(doc: dict, pe: dict, script: Script) -> list[str]:
     for jc in doc.get("judgement_calls", []):
         if jc["segment"] not in seg_by_id:
             errs.append(f"judgement_calls: unknown segment {jc['segment']}")
+
+    # Would the prompters build? Checked here so nothing half-written is
+    # left behind when a segment can't be matched.
+    from build_prompters import check_prompters
+    errs += check_prompters(doc, pe, script)
     return errs
+
+
+def _check_retime(cue: dict, seg: dict, script: Script) -> list[str]:
+    """A retimed bed must end inside the segment it lands on."""
+    to = cue["_reanchor"]["retime"]["to"]
+    if to == "segment":
+        return []
+    words = segment_words(script, seg)
+    span = covered_words(words, cue.get("anchor"), to)
+    if span is None:
+        return [f"reanchor {cue['id']}: retime to_phrase \"{to['to_phrase']}\" "
+                f"isn't in {seg['id']} after the bed's anchor"]
+    if "seconds" in to:
+        start = anchor_index(words, cue.get("anchor"))
+        room = (len(words) - start) * 60 / WPM
+        if to["seconds"] > room:
+            return [f"reanchor {cue['id']}: retime to {to['seconds']}s runs "
+                    f"past the end of {seg['id']} (about {room:.0f}s of "
+                    f"speech from the anchor at {WPM} words a minute)"]
+    return []
 
 
 def check_reanchors(doc: dict, pe: dict, beats: dict) -> list[str]:
@@ -414,6 +467,10 @@ def check_reanchors(doc: dict, pe: dict, beats: dict) -> list[str]:
         if not a <= n <= b:
             errs.append(f"reanchor {cid}: new anchor sentence {n} is outside "
                         f"its parent beat {cue['_beat']} ({a}-{b})")
+        if "retime" in r and r["retime"]["from"] != cue.get("duration"):
+            errs.append(f"reanchor {cid}: retime 'from' is "
+                        f"{json.dumps(r['retime']['from'])} but the paper "
+                        f"edit's duration is {json.dumps(cue.get('duration'))}")
     return errs
 
 
@@ -438,6 +495,9 @@ def validate_file(path: Path) -> tuple[str | None, list[str]]:
             pe, script = load_paper_edit(path)
             return kind, (_prefixed("script", _schema_errors(script.doc, "script"))
                           or check_paper_edit(pe, script))
+        if kind == "prompter-map":
+            resolve_input(path, doc, "director")
+            return kind, check_prompter_map(path, doc)
         if kind == "sentences":
             resolve_input(path, doc, "script")
             resolve_input(path, doc, "transcript")
@@ -476,10 +536,41 @@ def main() -> None:
     sys.exit(1 if failed else 0)
 
 
+def lint_director(d: dict, pe: dict, script: Script) -> list[str]:
+    """A talking-head cutaway that covers most of its segment is really a
+    voiceover recorded in the wrong session."""
+    notes = []
+    segments = segment_ranges(d, pe)
+    owner = sentence_owner(segments)
+    seg_by_id = {s["id"]: s for s in segments}
+    beats = {b["id"]: b for b in pe["beats"]}
+    cues = all_cues(pe, d)
+    by_id = {c["id"]: c for c in cues}
+    for c in cues:
+        full_frame_overlay = c["placement"] == "overlay" and (
+            c["kind"] in ("sr", "br") or
+            (c["kind"] == "mg" and c.get("layer") == "full"))
+        if c["placement"] != "bed" and not full_frame_overlay:
+            continue
+        seg = seg_by_id.get(owner.get(cue_anchor_sentence(c, beats, by_id)))
+        if not seg or seg["mode"] != "th":
+            continue
+        words = segment_words(script, seg)
+        span = covered_words(words, c.get("anchor"), c.get("duration"))
+        if span and words and (span[1] - span[0]) / len(words) > 0.8:
+            pct = 100 * (span[1] - span[0]) / len(words)
+            notes.append(f"{c['id']}: cutaway covers about {pct:.0f}% of "
+                         f"talking-head segment {seg['id']}; should it be VO?")
+    return notes
+
+
 def lint_file(path: Path) -> list[str]:
     """Non-blocking notes for a file that already validates."""
     try:
         doc = load(path)
+        if schema_kind(doc) == "director":
+            d, pe, _, script = load_director(path)
+            return lint_director(d, pe, script)
         if schema_kind(doc) == "paper-edit":
             pe, script = load_paper_edit(path)
             return lint_paper_edit(pe, script)

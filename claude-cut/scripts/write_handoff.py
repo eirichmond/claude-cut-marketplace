@@ -31,11 +31,21 @@ def summary(doc: dict) -> str:
         cues = [c for b in doc["beats"] for c in b.get("cues", [])]
         kinds = Counter(c["kind"] for c in cues)
         chapters = sum(1 for b in doc["beats"] if b.get("chapter"))
+        full = sum(1 for c in cues if c["placement"] == "bed"
+                   and c.get("duration", "segment") == "segment")
+        timed = sum(1 for c in cues if c["placement"] == "bed") - full
+        cutaways = sum(1 for c in cues if c["placement"] == "overlay"
+                       and (c["kind"] in ("sr", "br") or
+                            (c["kind"] == "mg" and c.get("layer") == "full")))
         return (f"{len(doc['beats'])} beats, {chapters} chapters, {len(cues)} "
-                f"cues ({', '.join(f'{k} {n}' for k, n in kinds.most_common())})")
-    modes = Counter(s["mode"] for s in doc.get("segments", []))
-    return (f"{len(doc.get('segments', []))} segments ({modes['th']} TH, "
-            f"{modes['vo']} VO), {len(doc.get('cues', []))} director cues, "
+                f"cues ({', '.join(f'{k} {n}' for k, n in kinds.most_common())})\n"
+                f"Pictures: {full} full-length beds, {timed} timed beds, "
+                f"{cutaways} mid-beat cutaways")
+    segs = doc.get("segments", [])
+    modes = Counter(s["mode"] for s in segs)
+    split = len({s["beat"] for s in segs if s["id"] != s["beat"]})
+    return (f"{len(segs)} segments ({modes['th']} TH, {modes['vo']} VO), "
+            f"{split} beats split, {len(doc.get('cues', []))} director beds, "
             f"{len(doc.get('reanchor', []))} reanchors")
 
 

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/prompter-map.schema.json",
+  "title": "claude-cut/prompter-map@1: cut sentence numbers to segments (written by build_prompters.py)",
+  "description": "For each prompter, s is the number edit-takes will report (match_takes split_sentences order); n is the script sentence (or sentences, if punctuation made split_sentences join two) it came from. Untimed sentences are too short for take matching.",
+  "type": "object",
+  "required": [
+    "schema",
+    "created",
+    "inputs",
+    "prompters"
+  ],
+  "properties": {
+    "schema": {
+      "const": "claude-cut/prompter-map@1"
+    },
+    "created": {
+      "$ref": "_defs.schema.json#/$defs/created"
+    },
+    "inputs": {
+      "type": "object",
+      "required": [
+        "director"
+      ],
+      "properties": {
+        "director": {
+          "$ref": "_defs.schema.json#/$defs/inputRef"
+        }
+      },
+      "additionalProperties": false
+    },
+    "prompters": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "th",
+          "vo"
+        ]
+      },
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "path",
+          "sha256",
+          "sentences",
+          "untimed"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "sentences": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "s",
+                "n",
+                "segment"
+              ],
+              "properties": {
+                "s": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "n": {
+                  "oneOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "minItems": 2
+                    }
+                  ]
+                },
+                "segment": {
+                  "description": "The segment this cut sentence belongs to, or two or more in order when a script sentence ending ?\" or !\" made take matching run it into the next segment (conform splits it).",
+                  "oneOf": [
+                    {
+                      "$ref": "_defs.schema.json#/$defs/segmentId"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "_defs.schema.json#/$defs/segmentId"
+                      },
+                      "minItems": 2
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "untimed": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "n",
+                "segment",
+                "text"
+              ],
+              "properties": {
+                "n": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "segment": {
+                  "$ref": "_defs.schema.json#/$defs/segmentId"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
