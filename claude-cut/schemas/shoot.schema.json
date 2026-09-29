@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/shoot.schema.json",
+  "title": "claude-cut/shoot@1: where the recordings and captured assets are",
+  "description": "Paths are absolute, or relative to this file. assets maps cue IDs (b06.sr1) to the screen recording or b-roll file for that cue; null means not captured yet (assemble leaves a marker).",
+  "type": "object",
+  "required": ["schema", "th"],
+  "properties": {
+    "schema": {"const": "claude-cut/shoot@1"},
+    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "inputs": {"type": "object"},
+    "workdir": {"type": "string"},
+    "th": {
+      "type": "object",
+      "required": ["aroll"],
+      "properties": {
+        "aroll": {"type": "string"},
+        "broll": {"type": ["string", "null"]},
+        "offsets": {"type": ["string", "null"], "description": "sync.py output for the B-roll angle"}
+      },
+      "additionalProperties": false
+    },
+    "vo": {
+      "type": "object",
+      "required": ["audio"],
+      "properties": {"audio": {"type": "string"}},
+      "additionalProperties": false
+    },
+    "assets": {
+      "type": "object",
+      "propertyNames": {"$ref": "_defs.schema.json#/$defs/cueId"},
+      "additionalProperties": {"type": ["string", "null"]}
+    }
+  },
+  "additionalProperties": false
+}

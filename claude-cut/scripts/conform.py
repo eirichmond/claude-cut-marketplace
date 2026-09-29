@@ -557,6 +557,7 @@ def conform(args) -> tuple[dict, list, list]:
     doc["segments"] = out_segments
     doc["cues"] = out_cues
     doc["markers"] = markers
+    warnings[:] = list(dict.fromkeys(warnings))  # one anchor can be looked up twice
     doc["warnings"] = warnings
     return doc, errors, warnings
 
