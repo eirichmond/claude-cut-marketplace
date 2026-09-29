@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/sfx-index.schema.json",
+  "title": "claude-cut/sfx-index@1: the local sound-effects libraries (written by sfx_index.py)",
+  "type": "object",
+  "required": ["schema", "created", "libraries", "files"],
+  "properties": {
+    "schema": {"const": "claude-cut/sfx-index@1"},
+    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "inputs": {"type": "object"},
+    "libraries": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["library", "path", "category", "name", "duration", "channels", "rate"],
+        "properties": {
+          "library": {"type": "string"},
+          "path": {"type": "string"},
+          "category": {"type": "string"},
+          "name": {"type": "string"},
+          "duration": {"type": "number", "minimum": 0},
+          "channels": {"type": "integer", "minimum": 1},
+          "rate": {"type": "integer", "minimum": 1},
+          "size": {"type": "integer", "minimum": 0},
+          "mtime": {"type": "number"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

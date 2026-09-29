@@ -70,6 +70,89 @@ def check_script(doc: dict) -> list[str]:
     return errs
 
 
+GRAPHIC_KINDS = {"mg", "lt", "chapter", "callout"}
+
+
+def check_graphics_spec(path: Path, doc: dict) -> list[str]:
+    """Every graphic and sfx cue of the plan covered exactly once, template
+    vars valid, custom compositions present and on-identity, SFX in the
+    index."""
+    import identity
+    import templates
+    errs: list[str] = []
+    plan_path = resolve_input(path, doc, "plan")
+    frame_path = resolve_input(path, doc, "frame")
+    k, plan_errs = validate_file(plan_path)
+    if plan_errs:
+        return [f"[{plan_path.name}] {e}" for e in plan_errs]
+    plan = load(plan_path)
+    cues = {c["id"]: c for c in plan["cues"]}
+    wanted = {cid for cid, c in cues.items()
+              if c["kind"] in GRAPHIC_KINDS or c["kind"] == "sfx"}
+
+    seen: dict[str, str] = {}
+    def claim(cid, where):
+        if cid in seen:
+            errs.append(f"{cid}: listed in {seen[cid]} and {where}")
+        seen[cid] = where
+        if cid not in cues:
+            errs.append(f"{cid}: not a cue in the plan (or outside its scope)")
+            return None
+        return cues[cid]
+
+    base = Path(path).parent
+    try:
+        tok = identity.tokens(frame_path, base / "fonts") \
+            if (base / "fonts").exists() else identity.tokens(frame_path)
+    except ValueError as e:
+        errs.append(str(e))
+        tok = None
+    for g in doc["graphics"]:
+        c = claim(g["cue"], "graphics")
+        if c and c["kind"] not in GRAPHIC_KINDS:
+            errs.append(f"{g['cue']}: a {c['kind']} cue isn't a graphic")
+        if g["template"] == "custom":
+            comp = base / g["composition"]
+            if not comp.exists():
+                errs.append(f"{g['cue']}: {g['composition']} doesn't exist")
+            elif tok:
+                errs += [f"{g['cue']}: {i}"
+                         for i in identity.check(comp.read_text(), tok)]
+        else:
+            try:
+                errs += [f"{g['cue']} ({g['template']}): {e}"
+                         for e in templates.check_vars(g["template"], g["vars"])]
+            except RuntimeError as e:
+                errs.append(str(e))
+
+    index = None
+    if doc["sfx"]:
+        if "sfx_index" not in doc["inputs"]:
+            errs.append("sfx picks need the sfx index in inputs (sfx_index)")
+        else:
+            index = load(resolve_input(path, doc, "sfx_index"))
+    have = {(f["library"], f["path"]) for f in index["files"]} if index else set()
+    for s in doc["sfx"]:
+        c = claim(s["cue"], "sfx")
+        if c and c["kind"] != "sfx":
+            errs.append(f"{s['cue']}: a {c['kind']} cue can't have a sound effect")
+        if index is not None:
+            for f in [s["file"]] + s.get("alternatives", []):
+                if (s["library"], f) not in have:
+                    errs.append(f"{s['cue']}: '{f}' isn't in the '{s['library']}' "
+                                f"library index")
+
+    for s in doc["skip"]:
+        c = claim(s["cue"], "skip")
+        if c and c["id"] not in wanted:
+            errs.append(f"{s['cue']}: {c['kind']} cues aren't listed; they stay "
+                        f"markers anyway")
+
+    for cid in sorted(wanted - set(seen)):
+        errs.append(f"{cid} ({cues[cid]['kind']}): not in graphics, sfx or skip")
+    return errs
+
+
 def check_prompter_map(path: Path, doc: dict) -> list[str]:
     from handoff import sha256
     errs = []
@@ -495,6 +578,10 @@ def validate_file(path: Path) -> tuple[str | None, list[str]]:
             pe, script = load_paper_edit(path)
             return kind, (_prefixed("script", _schema_errors(script.doc, "script"))
                           or check_paper_edit(pe, script))
+        if kind == "graphics-spec":
+            return kind, check_graphics_spec(path, doc)
+        if kind == "sfx-index":
+            return kind, []
         if kind == "plan-resolved":
             for role in doc["inputs"]:
                 resolve_input(path, doc, role)

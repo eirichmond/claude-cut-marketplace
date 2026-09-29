@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/graphics-spec.schema.json",
+  "title": "claude-cut/graphics-spec@1: how each graphic and SFX cue is made (written by the graphics skill)",
+  "description": "Every graphic cue (mg, lt, chapter, callout) and sfx cue in the plan appears exactly once, in graphics, sfx or skip. zoom, blur, marker, music, sr and br cues are not listed: they stay markers or come from shoot.json. Paths are relative to this file's folder (the graphics project).",
+  "type": "object",
+  "required": ["schema", "created", "inputs", "graphics", "sfx", "skip"],
+  "properties": {
+    "schema": {"const": "claude-cut/graphics-spec@1"},
+    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "inputs": {
+      "type": "object",
+      "required": ["plan", "frame"],
+      "properties": {
+        "plan": {"$ref": "_defs.schema.json#/$defs/inputRef"},
+        "frame": {"$ref": "_defs.schema.json#/$defs/inputRef"},
+        "sfx_index": {"$ref": "_defs.schema.json#/$defs/inputRef"}
+      },
+      "additionalProperties": false
+    },
+    "graphics": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["cue", "template", "vars"],
+            "properties": {
+              "cue": {"$ref": "_defs.schema.json#/$defs/cueId"},
+              "template": {"type": "string", "pattern": "^[a-zA-Z]+$", "not": {"const": "custom"}},
+              "vars": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": ["cue", "template", "composition"],
+            "properties": {
+              "cue": {"$ref": "_defs.schema.json#/$defs/cueId"},
+              "template": {"const": "custom"},
+              "composition": {"type": "string", "pattern": "^compositions/[^/]+\\.html$"}
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "sfx": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cue", "library", "file"],
+        "properties": {
+          "cue": {"$ref": "_defs.schema.json#/$defs/cueId"},
+          "library": {"type": "string", "minLength": 1},
+          "file": {"type": "string", "minLength": 1, "description": "Path inside the library, e.g. Impacts/Impact - Deep - Snap.wav"},
+          "gain_db": {"type": "number", "minimum": -40, "maximum": 12},
+          "alternatives": {
+            "type": "array", "maxItems": 4,
+            "items": {"type": "string", "minLength": 1}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "skip": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cue", "reason"],
+        "properties": {
+          "cue": {"$ref": "_defs.schema.json#/$defs/cueId"},
+          "reason": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
