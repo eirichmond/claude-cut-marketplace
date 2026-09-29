@@ -26,6 +26,7 @@ from pathlib import Path
 IDENTITY = Path(__file__).resolve().parent.parent / "identity"
 FRAME = IDENTITY / "frame.md"
 FONTS = IDENTITY / "fonts"
+VENDOR = IDENTITY.parent / "graphics" / "vendor"
 FONT_FILE = re.compile(r"^(?P<family>.+?)-latin-(?P<weight>\d{3})-normal\.woff2$")
 
 # What every identity must define: templates rely on these names.
@@ -98,7 +99,8 @@ def tokens(frame: Path = FRAME, font_dir: Path = FONTS) -> dict:
 
 def install(project: Path, frame: Path = FRAME, font_dir: Path = FONTS) -> dict:
     """frame.md at the project root (where HyperFrames' skills look), the
-    font files under fonts/, and identity.json for the templates."""
+    font files under fonts/, GSAP under vendor/, and identity.json for the
+    templates."""
     project.mkdir(parents=True, exist_ok=True)
     tok = tokens(frame, font_dir)
     shutil.copyfile(frame, project / "frame.md")
@@ -109,6 +111,10 @@ def install(project: Path, frame: Path = FRAME, font_dir: Path = FONTS) -> dict:
             shutil.copyfile(font_dir / fname, dest / fname)
     for lic in font_dir.glob("OFL-*.txt"):
         shutil.copyfile(lic, dest / lic.name)
+    vendor = project / "vendor"
+    vendor.mkdir(exist_ok=True)
+    for f in VENDOR.iterdir():
+        shutil.copyfile(f, vendor / f.name)
     (project / "identity.json").write_text(json.dumps(tok, indent=1) + "\n")
     return tok
 

@@ -1,11 +1,11 @@
 // Lower third: background panel, accent kicker, headline, optional line.
 // Ported from the MCP video's overlays.mjs, on semantic tokens.
-import { page, esc, accented, role, timing } from "../lib.mjs";
+import { page, esc, inline, role, timing } from "../lib.mjs";
 
 export const variables = {
   kicker: { type: "string", required: true, label: "Eyebrow, uppercase mono" },
-  head: { type: "string", required: true, label: "Headline; *word* is accented" },
-  line: { type: "string", required: false, label: "Supporting line (body text)" },
+  head: { type: "string", required: true, label: "Headline; *accent*, `code`" },
+  line: { type: "string", required: false, label: "Supporting line (body text); *accent*, `code`" },
 };
 export const layer = "overlay";
 
@@ -27,8 +27,8 @@ export function render({ identity: id, cue, dur, kicker, head, line }) {
         <div class="inner">
           <span class="rule"></span>
           <div class="mask"><div class="kicker">${esc(kicker)}</div></div>
-          <div class="mask"><div class="head">${accented(head)}</div></div>
-          ${line ? `<div class="mask"><p class="line">${esc(line)}</p></div>` : ""}
+          <div class="mask"><div class="head">${inline(head)}</div></div>
+          ${line ? `<div class="mask"><p class="line">${inline(line)}</p></div>` : ""}
         </div>
       </div>`;
   const { k, out } = timing(dur);

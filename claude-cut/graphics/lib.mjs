@@ -15,6 +15,16 @@ export const H = 1080;
 export const esc = (s) =>
   String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 export const accented = (s) => esc(s).replace(/\*(.+?)\*/g, "<em>$1</em>");
+// Inline markup for any text variable: *accented clause*, `code` (mono, case kept).
+export const inline = (s) => accented(s).replace(/`(.+?)`/g, "<code>$1</code>");
+
+// Corner placements inside the safe area.
+export const CORNERS = {
+  bl: "left: 5.5cqw; bottom: 5.5cqw;",
+  br: "right: 5.5cqw; bottom: 5.5cqw;",
+  tl: "left: 5.5cqw; top: 5.5cqw;",
+  tr: "right: 5.5cqw; top: 5.5cqw;",
+};
 
 function fontFaces(id) {
   const faces = [];
@@ -67,8 +77,11 @@ export function page({ identity, id, dur, overlay = false, css = "", html, js, t
     .mask > * { display: block; padding-top: 0.06em; padding-bottom: 0.2em; }
     .rule { display: block; width: 72px; height: 4px; background: var(--accent); transform-origin: left center; }
     em { font-style: normal; color: var(--accent); }
+    code { ${role(identity, "label", { upper: false, tracking: "0" })} font-size: inherit; }
   `;
-  const GSAP = `<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>`;
+  // GSAP is vendored into the project (scripts/identity.py install): nothing is
+  // fetched at render time.
+  const GSAP = `<script src="../vendor/gsap.min.js"></script>`;
   return `<!doctype html>
 <html lang="en-GB">
   <head>
