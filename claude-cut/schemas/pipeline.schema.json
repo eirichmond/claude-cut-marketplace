@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/pipeline.schema.json",
+  "title": "claude-cut/pipeline@1: where a video is in the pipeline",
+  "description": "Kept by scripts/pipeline.py in the video's working folder. Each stage records what it was made from and what it made (fingerprints), so staleness is recomputed from the files on disk.",
+  "type": "object",
+  "required": ["schema", "created", "script", "workdir", "settings", "stages"],
+  "properties": {
+    "schema": {"const": "claude-cut/pipeline@1"},
+    "created": {"$ref": "_defs.schema.json#/$defs/created"},
+    "script": {"type": "string", "description": "Absolute path of the script .md"},
+    "workdir": {"type": "string", "description": "Absolute path of the working (footage) folder"},
+    "settings": {
+      "type": "object",
+      "properties": {
+        "marker_scope": {"enum": ["sentence", "chunk"]},
+        "segments": {"type": ["string", "null"], "pattern": "^b\\d{2}[a-z]?-b\\d{2}[a-z]?$",
+                     "description": "Recorded range for conform --segments, or null for the whole script"}
+      },
+      "additionalProperties": false
+    },
+    "stages": {
+      "type": "object",
+      "propertyNames": {"enum": ["paper-edit", "director", "shoot", "cut", "conform",
+                                 "graphics", "assemble"]},
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "gate"],
+        "properties": {
+          "status": {"enum": ["pending", "running", "waiting", "done", "failed", "stale"]},
+          "gate": {"enum": ["n/a", "waiting", "approved"]},
+          "reason": {"type": "string"},
+          "inputs": {"$ref": "#/$defs/prints"},
+          "outputs": {"$ref": "#/$defs/prints"},
+          "started_at": {"$ref": "_defs.schema.json#/$defs/created"},
+          "finished_at": {"$ref": "_defs.schema.json#/$defs/created"},
+          "approved_at": {"$ref": "_defs.schema.json#/$defs/created"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "prints": {
+      "type": "object",
+      "description": "path -> fingerprint: sha256:<hex>, or size:<bytes>:mtime:<ns> for large media",
+      "additionalProperties": {"type": "string", "pattern": "^(sha256:[0-9a-f]{64}|size:\\d+:mtime:\\d+)$"}
+    }
+  }
+}

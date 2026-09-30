@@ -7,7 +7,7 @@
     {
       "name": "claude-cut",
       "source": "./claude-cut",
-      "description": "Script to Resolve timeline for prompter-scripted YouTube videos: paper edit, talking-head/voiceover split, automated take selection and A/B roll sync, conform and assembly."
+      "description": "Script to Resolve timeline for prompter-scripted YouTube videos: paper edit, talking-head/voiceover split, shoot pack, automated take selection and A/B roll sync, conform, HyperFrames graphics and sound effects with a review page, and assembly, run end to end by /claude-cut:produce."
     }
   ]
 }

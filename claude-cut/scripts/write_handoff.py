@@ -27,6 +27,11 @@ HEADER_KEYS = ("schema", "created", "inputs")
 
 def summary(doc: dict) -> str:
     from collections import Counter
+    if "graphics" in doc:
+        tpl = Counter(g["template"] for g in doc["graphics"])
+        return (f"{len(doc['graphics'])} graphics "
+                f"({', '.join(f'{k} {n}' for k, n in tpl.most_common())}), "
+                f"{len(doc['sfx'])} sound effects, {len(doc['skip'])} skipped")
     if "beats" in doc:
         cues = [c for b in doc["beats"] for c in b.get("cues", [])]
         kinds = Counter(c["kind"] for c in cues)
@@ -52,7 +57,7 @@ def summary(doc: dict) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("kind", choices=["paper-edit", "director"])
+    ap.add_argument("kind", choices=["paper-edit", "director", "graphics-spec"])
     ap.add_argument("draft", type=Path)
     ap.add_argument("--input", action="append", default=[], metavar="ROLE=PATH",
                     required=True)

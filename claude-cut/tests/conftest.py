@@ -174,3 +174,85 @@ def run_conform(director: Path, pmap: Path, cut: Path, out: Path, *extra):
     if (cut / "vo").exists():
         args += ["--vo", cut / "vo"]
     return run_script("conform.py", *args, *extra)
+
+
+# --- a graphics project on the synthetic MCP plan -------------------------------
+
+SFX_FILES = [("Impacts/Impact - Deep - Snap.wav", "Impacts", 1),
+             ("Whooshes/Whoosh - Pan - Heavy.wav", "Whooshes", 2),
+             ("Clicks/Click - Keyboard 02.wav", "Clicks", 2)]
+TEMPLATE_FOR = {
+    "chapter": ("chapterCard", lambda c: {"num": "01", "kicker": "Chapter",
+                                          "title": c["brief"][:30]}),
+    "lt": ("lowerThird", lambda c: {"kicker": "Key term", "head": c["brief"][:40]}),
+    "callout": ("callout", lambda c: {"kicker": "Key point", "text": c["brief"][:40]}),
+}
+
+
+def graphics_world(d: Path, fps: int = 25) -> dict:
+    """Synthetic MCP cut -> conform -> a graphics project with the identity,
+    custom compositions for the one-off mg cues, a small SFX library (real
+    tone files) and its index. Returns paths and the plan."""
+    import subprocess as sp
+    import identity
+    from handoff import header
+    synthetic_cut(FIXTURES / "mcp-setup", d / "cut", fps=fps)
+    mcp = FIXTURES / "mcp-setup"
+    r = run_conform(mcp / "mcp-setup.director.json", mcp / "prompter.map.json",
+                    d / "cut", d / "plan.resolved.json")
+    assert r.returncode == 0, r.stdout
+    gfx = d / "graphics"
+    identity.install(gfx)
+    lib = d / "sfxlib"
+    for path, _, ch in SFX_FILES:
+        (lib / path).parent.mkdir(parents=True, exist_ok=True)
+        sp.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                "sine=frequency=660:duration=0.5:sample_rate=48000",
+                "-ac", str(ch), str(lib / path)], check=True)
+    index = header("sfx-index", {})
+    index.update({"libraries": {"story": str(lib)},
+                  "files": [{"library": "story", "path": p, "category": cat,
+                             "name": Path(p).stem, "duration": 0.5, "channels": ch,
+                             "rate": 48000} for p, cat, ch in SFX_FILES]})
+    (gfx / "sfx-index.json").write_text(json.dumps(index))
+    plan = json.loads((d / "plan.resolved.json").read_text())
+    mg = [c for c in plan["cues"] if c["kind"] == "mg"]
+    rows = [{"cue": c["id"], "template": "tag", "frames": c["tl"][1] - c["tl"][0],
+             "fps": plan["timeline"]["fps"], "vars": {"text": "one-off"}} for c in mg]
+    (gfx / "rows.json").write_text(json.dumps(rows))
+    sp.run(["node", str(ROOT / "graphics" / "build.mjs"), str(gfx),
+            str(gfx / "rows.json")], check=True, capture_output=True)
+    (d / "shoot.json").write_text(json.dumps({
+        "schema": "claude-cut/shoot@1", "th": {"aroll": "cut/aroll.mp4"},
+        "vo": {"audio": "vo.wav"}, "assets": {}}))
+    return {"dir": d, "gfx": gfx, "plan": plan, "shoot": d / "shoot.json"}
+
+
+def graphics_body(world: dict) -> dict:
+    """A complete graphics.json body for the world's plan."""
+    g, sfx = [], []
+    for c in world["plan"]["cues"]:
+        if c["kind"] in TEMPLATE_FOR:
+            name, make = TEMPLATE_FOR[c["kind"]]
+            g.append({"cue": c["id"], "template": name, "vars": make(c)})
+        elif c["kind"] == "mg":
+            g.append({"cue": c["id"], "template": "custom",
+                      "composition": f"compositions/{c['id']}.html"})
+        elif c["kind"] == "sfx":
+            sfx.append({"cue": c["id"], "library": "story", "file": SFX_FILES[0][0],
+                        "gain_db": -6, "alternatives": [SFX_FILES[1][0]]})
+    return {"graphics": g, "sfx": sfx, "skip": []}
+
+
+def write_graphics_spec(world: dict, body: dict, sfx_index=True,
+                        name="graphics.json") -> Path:
+    from handoff import header, input_ref
+    gfx = world["gfx"]
+    doc = header("graphics-spec", {
+        "plan": input_ref(world["dir"] / "plan.resolved.json", gfx),
+        "frame": input_ref(gfx / "frame.md", gfx),
+        **({"sfx_index": input_ref(gfx / "sfx-index.json", gfx)} if sfx_index else {})})
+    doc.update(body)
+    p = gfx / name
+    p.write_text(json.dumps(doc, indent=1))
+    return p

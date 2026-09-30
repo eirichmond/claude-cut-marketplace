@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Access stamp b01.mg1</title>
+    <script src="../vendor/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Anton"; font-weight: 400; font-style: normal; font-display: block; src: url("../fonts/anton-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "DM Mono"; font-weight: 400; font-style: normal; font-display: block; src: url("../fonts/dm-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "DM Mono"; font-weight: 500; font-style: normal; font-display: block; src: url("../fonts/dm-mono-latin-500-normal.woff2") format("woff2"); }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden;
+        background: #0D1F28; }
+      #r-b01-mg1 {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden;
+    container-type: size;
+    --background: #0D1F28; --background-alt: #1A1A18; --accent: #00C8E0; --text: #EFF9FC; --text-muted: #888880; --text-hint: #505048; --border: #5AACBD; --on-accent-muted: rgba(13,31,40,0.75); --on-accent-hint: rgba(13,31,40,0.55); --on-accent-faint: rgba(13,31,40,0.40); --on-accent-border: rgba(13,31,40,0.20);
+    font-family: "Anton"; font-weight: 400; font-size: 1.2cqw; line-height: 1.6;
+    color: var(--text);
+    background: var(--background);
+    -webkit-font-smoothing: antialiased;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    .mono { font-family: "DM Mono"; font-weight: 500; font-size: 0.72cqw; letter-spacing: 0.14em; text-transform: uppercase; }
+    .mask { overflow: hidden; display: block; }
+    /* tight display line-heights let descenders hang below the line box,
+       where the reveal mask would clip them: pad the masked line */
+    .mask > * { display: block; padding-top: 0.06em; padding-bottom: 0.2em; }
+    .rule { display: block; width: 72px; height: 4px; background: var(--accent); transform-origin: left center; }
+    em { font-style: normal; color: var(--accent); }
+    code { font-family: "DM Mono"; font-weight: 500; font-size: 0.72cqw; letter-spacing: 0; font-size: inherit; }
+  
+        
+  .term { position: absolute; inset: 7cqw 9cqw; background: var(--background-alt);
+          border: 1px solid var(--border); padding: 2.4cqw 2.8cqw; }
+  .bar { display: flex; gap: 0.7cqw; margin-bottom: 2cqw; }
+  .bar i { width: 0.9cqw; height: 0.9cqw; border-radius: 50%; background: var(--text-hint); }
+  .lines { font-family: "DM Mono"; font-weight: 400; font-size: 1.9cqw; line-height: 1.7;
+           color: var(--text-muted); filter: blur(0.55cqw); }
+  .lines b { color: var(--text); font-weight: 500; }
+  .stampwrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .stamp { border: 0.7cqw solid var(--accent); padding: 0.4cqw 2.6cqw 0; color: var(--accent);
+           font-family: "Anton"; font-weight: 400; font-size: 13cqw; line-height: 1.05;
+           letter-spacing: 0.02em; text-transform: uppercase; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="r-b01-mg1" data-composition-id="b01-mg1" data-start="0"
+         data-width="1920" data-height="1080" data-duration="2">
+
+      <div class="term">
+        <div class="bar"><i></i><i></i><i></i></div>
+        <div class="lines" data-layout-ignore>
+          <div><b>claude</b> &gt; checking how to reach the site</div>
+          <div>$ ssh deploy@live-site -p 22</div>
+          <div>Warning: permanently added 'live-site' to known hosts.</div>
+          <div>deploy@live-site:~$ wp plugin list</div>
+          <div>deploy@live-site:~$ _</div>
+        </div>
+      </div>
+      <div class="stampwrap"><div class="stamp" data-layout-allow-occlusion>access</div></div>
+    </div>
+    <script>
+      (function () {
+        const R = document.getElementById("r-b01-mg1");
+        const q = (s) => R.querySelector(s);
+        const qa = (s) => R.querySelectorAll(s);
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo(q(".term"), { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.25, ease: "power2.out" }, 0);
+        tl.fromTo(q(".lines"), { y: 30 }, { y: -40, duration: 2, ease: "none" }, 0);
+        tl.fromTo(q(".stamp"), { opacity: 0, scale: 2.6, rotation: -14 },
+                  { opacity: 1, scale: 1, rotation: -8, duration: 0.16, ease: "power4.in" }, 0.42);
+        tl.fromTo(q(".term"), { x: 0 }, { x: 14, duration: 0.05, repeat: 3, yoyo: true, ease: "none" }, 0.58);
+        tl.to(qa(".term, .stamp"), { opacity: 0, duration: 0.2, ease: "power1.in" }, 1.8);
+
+        window.__timelines["b01-mg1"] = tl;
+      })();
+    </script>
+  </body>
+</html>

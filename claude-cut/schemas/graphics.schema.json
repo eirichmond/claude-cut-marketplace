@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cut.local/schemas/graphics.schema.json",
+  "title": "claude-cut/graphics@1: rendered graphics and the SFX stem (renders/manifest.json, written by render_graphics.py)",
+  "type": "object",
+  "required": [
+    "schema",
+    "created",
+    "inputs",
+    "timeline",
+    "renders"
+  ],
+  "properties": {
+    "schema": {
+      "const": "claude-cut/graphics@1"
+    },
+    "created": {
+      "$ref": "_defs.schema.json#/$defs/created"
+    },
+    "inputs": {
+      "type": "object",
+      "required": [
+        "spec",
+        "plan"
+      ],
+      "properties": {
+        "spec": {
+          "$ref": "_defs.schema.json#/$defs/inputRef"
+        },
+        "plan": {
+          "$ref": "_defs.schema.json#/$defs/inputRef"
+        }
+      },
+      "additionalProperties": false
+    },
+    "timeline": {
+      "type": "object"
+    },
+    "renders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "cue",
+          "file",
+          "template",
+          "layer",
+          "frames",
+          "fps",
+          "sha256",
+          "spec_hash",
+          "review"
+        ],
+        "properties": {
+          "cue": {
+            "$ref": "_defs.schema.json#/$defs/cueId"
+          },
+          "file": {
+            "type": "string"
+          },
+          "template": {
+            "type": "string"
+          },
+          "layer": {
+            "enum": [
+              "overlay",
+              "full"
+            ]
+          },
+          "frames": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "fps": {
+            "type": "string"
+          },
+          "rendered_at_fps": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "spec_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "transparent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "proxy": {
+            "type": "string"
+          },
+          "proxy_context": {
+            "enum": [
+              "picture",
+              "plate"
+            ]
+          },
+          "review": {
+            "$ref": "#/$defs/review"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sfx": {
+      "type": "object",
+      "required": [
+        "file",
+        "sha256",
+        "hash",
+        "seconds",
+        "items"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "seconds": {
+          "type": "number"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "cue",
+              "file",
+              "frame",
+              "gain_db",
+              "review"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "review": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "approved",
+            "redo"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "swap": {
+          "type": "string",
+          "description": "An SFX file (in the same library) the reviewer wants instead"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
