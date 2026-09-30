@@ -29,8 +29,8 @@ Run scripts with the Python that has the plugin's dependencies.
 
   `assets` maps screen-recording and b-roll cue IDs (from the paper edit)
   to their files; `null`, or leaving a cue out, means not captured yet. If
-  there's no `shoot.json`, build one with the user: list the plan's `sr`
-  and `br` cues with their briefs and ask which files they've got.
+  there's no `shoot.json`, make one with the shoot skill's "after
+  recording" half (`shoot.py scan`, then `write`).
   `broll`/`offsets` are only needed for a second camera angle (offsets come
   from edit-takes' sync step).
 - The graphics project from the graphics stage, `graphics/` beside
