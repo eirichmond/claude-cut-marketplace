@@ -197,7 +197,9 @@ def sfx_stem(project: Path, spec: dict, spec_path: Path, plan: dict,
             raise RenderError(f"{s['cue']}: {src} not found (library moved?)")
         st = src.stat()
         items.append({"cue": s["cue"], "library": s["library"], "file": s["file"],
-                      "src": str(src), "frame": cues[s["cue"]]["tl"][0],
+                      "src": str(src),
+                      "frame": cues[s["cue"]]["tl"][0] + round(s.get("offset_s", 0) * fps),
+                      "offset_frames": round(s.get("offset_s", 0) * fps),
                       "gain_db": s.get("gain_db", 0), "size": st.st_size,
                       "mtime": st.st_mtime})
     h = hashlib.sha256(json.dumps([items, plan["timeline"]], sort_keys=True)
@@ -361,9 +363,10 @@ def main() -> None:
                          not args.no_proxies)
     except (RenderError, HandoffError) as e:
         sys.exit(f"Render failed: {e}")
-    pending = sum(r["review"]["status"] != "approved" for r in doc["renders"])
-    print(f"{len(doc['renders'])} graphics in renders/manifest.json, "
-          f"{pending} waiting for review")
+    effects = (doc.get("sfx") or {}).get("items", [])
+    pending = sum(x["review"]["status"] != "approved" for x in doc["renders"] + effects)
+    print(f"{len(doc['renders'])} graphics and {len(effects)} sound effects in "
+          f"renders/manifest.json, {pending} waiting for review")
 
 
 if __name__ == "__main__":

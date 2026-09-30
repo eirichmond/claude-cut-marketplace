@@ -200,6 +200,23 @@ def test_sfx_changes_remix_and_reset_that_effect(world):
     assert m["sfx"]["items"][0]["review"]["status"] == "pending"
 
 
+def test_sfx_offset_moves_the_effect_inside_its_cue(world):
+    body = graphics_body(world)
+    body["sfx"][0]["offset_s"] = 0.6
+    write_graphics_spec(world, body)
+    try:
+        r = render(world)
+        assert r.returncode == 0, r.stderr
+        it = next(x for x in manifest(world)["sfx"]["items"]
+                  if x["cue"] == body["sfx"][0]["cue"])
+        start = cue(world, it["cue"])["tl"][0]
+        assert (it["frame"], it["offset_frames"]) == (start + 15, 15)
+        assert it["review"]["status"] == "pending"
+    finally:
+        write_graphics_spec(world, graphics_body(world))
+        render(world)
+
+
 def test_native_timeline_rate_renders_without_conversion(tmp_path):
     w = graphics_world(tmp_path, fps=30)
     body = graphics_body(w)

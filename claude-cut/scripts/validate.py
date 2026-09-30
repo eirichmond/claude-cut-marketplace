@@ -141,6 +141,11 @@ def check_graphics_spec(path: Path, doc: dict) -> list[str]:
         c = claim(s["cue"], "sfx")
         if c and c["kind"] != "sfx":
             errs.append(f"{s['cue']}: a {c['kind']} cue can't have a sound effect")
+        if c and s.get("offset_s"):
+            at = c["tl"][0] + round(s["offset_s"] * Fraction(plan["timeline"]["fps"]))
+            if not 0 <= at < plan["timeline"]["frames"]:
+                errs.append(f"{s['cue']}: offset_s {s['offset_s']} puts it outside the "
+                            f"timeline")
         if index is not None:
             for f in [s["file"]] + s.get("alternatives", []):
                 if (s["library"], f) not in have:

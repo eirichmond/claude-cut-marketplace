@@ -135,6 +135,14 @@ def context(project: Path, doc: dict) -> dict:
             "templates": {g["cue"]: g["template"] for g in spec["graphics"]}}
 
 
+def proxy_note(e: dict) -> str:
+    if e.get("layer") == "full":
+        return "Full frame: replaces the picture for its length."
+    if e.get("proxy_context") == "picture":
+        return "Shown over the picture underneath."
+    return "Shown over a plain background (nothing supplied underneath yet)."
+
+
 def tc(frame: int, fps: Fraction) -> str:
     base = round(fps)
     s, f = divmod(frame, base)
@@ -190,12 +198,13 @@ def page(project: Path) -> str:
     def at(pair):
         kind, e = pair
         c = ctx["cues"].get(e["cue"], {})
-        return (c.get("tl", [e.get("frame", 0)])[0], kind != "graphic", e["cue"])
+        start = e["frame"] if kind == "sfx" else c.get("tl", [0])[0]
+        return (start, kind != "graphic", e["cue"])
 
     for kind, e in sorted(items(doc), key=at):     # timeline order, effects included
         cue = ctx["cues"].get(e["cue"], {})
         rv = e.get("review", {"status": "pending", "note": ""})
-        start = cue.get("tl", [e.get("frame", 0)])[0]
+        start = e["frame"] if kind == "sfx" else cue.get("tl", [0])[0]
         said = ctx["words"].get(cue.get("segment"), "")
         head = (f'<div class="meta"><span class="id">{esc(e["cue"])}</span>'
                 f'<span>{tc(start, fps)}</span><span>{esc(cue.get("kind", kind))}</span>'
@@ -206,7 +215,7 @@ def page(project: Path) -> str:
         if kind == "graphic":
             media = (f'<video controls loop muted playsinline preload="metadata" '
                      f'src="/files/{quote(e.get("proxy", ""))}?v={e["sha256"][:12]}#t=0.5"></video>'
-                     f'<p class="note">Shown over {"the picture underneath" if e.get("proxy_context") == "picture" else "a plain background (nothing supplied underneath yet)"}.</p>')
+                     f'<p class="note">{proxy_note(e)}</p>')
         else:
             alt = ctx["alts"].get(e["cue"], {})
             options = [e["file"]] + [a for a in alt.get("alternatives", []) if a != e["file"]]

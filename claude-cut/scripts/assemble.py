@@ -354,10 +354,11 @@ def load_graphics(gdir: Path, plan_path: Path, plan: dict,
         else:
             for it in sfx["items"]:
                 c = cues.get(it["cue"])
-                if not c or c["tl"][0] != it["frame"]:
+                want = c["tl"][0] + it.get("offset_frames", 0) if c else None
+                if want != it["frame"]:
                     problems.append(f"{it['cue']}: mixed at frame {it['frame']}, "
                                     f"the plan has it at "
-                                    f"{c['tl'][0] if c else 'no such cue'}")
+                                    f"{want if c else 'no such cue'}")
                 if it["review"]["status"] != "approved":
                     unreviewed.append((it["cue"], it["review"]))
     if unreviewed and not allow_unreviewed:
@@ -502,7 +503,7 @@ def assemble(args) -> dict:
         elif gfx and c["kind"] == "sfx" and c["id"] in sfx_items:
             it = sfx_items[c["id"]]
             unrev = " UNREVIEWED" if c["id"] in gfx["unreviewed"] else ""
-            markers.append((a, "check" if unrev else "cue",
+            markers.append((it["frame"], "check" if unrev else "cue",
                             f"SFX{unrev} {c['id']}: {Path(it['file']).stem}", 1))
         else:
             if c["kind"] not in MARKER_KINDS and not c["placement"].startswith("insert"):

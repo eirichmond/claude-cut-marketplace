@@ -110,6 +110,12 @@ search "…" [--category Whooshes]` finds more.
 - `gain_db` usually sits between −6 (an impact under a stamp or a whoosh
   on a wipe) and −12 (a click or tick under speech). Leave it at 0 only
   for a hit meant to punch.
+- `offset_s` puts the effect that many seconds after its cue's start. An
+  effect anchored to a graphic starts with it, but the moment it belongs
+  to is often inside it: a stamp that lands 0.58s in, or a card that snaps
+  shut at the end. Take the time from the composition's timeline (or the
+  template's in-animation), minus how long the sound takes to peak. A
+  negative value leads in, for a whoosh that starts before a wipe.
 - **If nothing fits, skip it with a reason.** It stays a marker for the
   user to fill by hand. Never pick a file that isn't in the index.
 
@@ -129,7 +135,8 @@ Write the body as a draft, `$G/graphics.draft.json`:
                 "line": "A standard way for AI to talk to software." } },
     { "cue": "b01.mg1", "template": "custom", "composition": "compositions/b01.mg1.html" } ],
   "sfx": [ { "cue": "b01.sfx1", "library": "story", "file": "Impacts/Impact - Deep - Snap.wav",
-             "alternatives": ["Impacts/Impact - Subdrop.wav"], "gain_db": -6 } ],
+             "alternatives": ["Impacts/Impact - Subdrop.wav"], "offset_s": 0.52,
+             "gain_db": -6 } ],
   "skip": [ { "cue": "b20.mg1", "reason": "the screen recording already shows the file" } ] }
 ```
 

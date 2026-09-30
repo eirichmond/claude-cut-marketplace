@@ -170,3 +170,11 @@ def test_the_redo_loop_rerenders_only_what_was_sent_back(world):
     after = {e["cue"]: e["review"]["status"] for _, e in review.items(manifest(world))}
     assert after.pop(lt["cue"]) == "pending"
     assert set(after.values()) == {"approved"}
+
+
+def test_proxy_notes_say_what_the_graphic_sits_on():
+    from review import proxy_note
+    assert proxy_note({"layer": "full", "proxy_context": "picture"}).startswith("Full frame")
+    assert "picture underneath" in proxy_note({"layer": "overlay", "proxy_context": "picture"})
+    assert "plain background" in proxy_note({"layer": "overlay", "proxy_context": "plate"})
+

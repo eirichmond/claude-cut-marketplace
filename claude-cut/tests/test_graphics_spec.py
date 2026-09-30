@@ -128,3 +128,10 @@ def test_stale_plan_is_refused(world):
     p.write_text(json.dumps(doc))
     errs = validate_file(p)[1]
     assert len(errs) == 1 and "has changed since this file was written" in errs[0]
+
+
+def test_sfx_offset_is_bounded(world):
+    assert errors(world, lambda b: b["sfx"][0].update(offset_s=0.6)) == []
+    assert errors(world, lambda b: b["sfx"][0].update(offset_s=-0.4)) == []
+    errs = errors(world, lambda b: b["sfx"][0].update(offset_s=31))
+    assert any("offset_s" in e for e in errs), errs
