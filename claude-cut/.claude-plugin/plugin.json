@@ -1,7 +1,7 @@
 {
   "name": "claude-cut",
   "version": "0.5.0",
-  "description": "Video pipeline for prompter-scripted YouTube videos. edit-takes (standalone, as before) transcribes the master audio, syncs A/B roll, keeps the last take of each script section honouring the spoken 'retake cut' marker, and exports a DaVinci Resolve timeline. The full pipeline adds paper-edit, director (TH/VO split and prompters), voiceover cuts (--vo), conform and assemble, taking a finished script to an assembled Resolve timeline with markers.",
+  "description": "Video pipeline for prompter-scripted YouTube videos. edit-takes (standalone, as before) transcribes the master audio, syncs A/B roll, keeps the last take of each script section honouring the spoken 'retake cut' marker, and exports a DaVinci Resolve timeline. /claude-cut:produce runs the full pipeline from the footage folder: paper edit, director (TH/VO split and prompters), shoot pack and footage registration, cuts, conform, HyperFrames graphics in your identity with local sound effects and a review page, and an assembled Resolve timeline, stopping at every human gate.",
   "author": {
     "name": "Elliott Richmond"
   }
