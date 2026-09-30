@@ -6,6 +6,10 @@ master audio, keeps the last take of each script section, syncs your B-roll
 (even at a different frame rate and start time), and hands DaVinci Resolve a
 clean timeline XML. You do the final polish.
 
+It's also a whole pipeline: `/claude-cut:produce` takes a finished script
+to an assembled Resolve timeline with graphics and sound effects, stopping
+for your sign-off at each stage (see [The full pipeline](#the-full-pipeline-v06)).
+
 ## What it replaces
 
 - Driving auto-editor by hand (it's still used under the bonnet to write
@@ -25,8 +29,8 @@ clean timeline XML. You do the final polish.
 Dependencies (the skill will offer to install the Python ones on first run):
 
 ```bash
-brew install ffmpeg          # if not already on the machine
-pip install faster-whisper numpy scipy rapidfuzz auto-editor jsonschema
+brew install ffmpeg node     # if not already on the machine
+pip install faster-whisper numpy scipy rapidfuzz auto-editor jsonschema pyyaml
 ```
 
 ## Shell alias
@@ -157,16 +161,39 @@ top), and the sound effects are one stem on their own audio track.
   python scripts/sfx_index.py build
   ```
 
+  The graphics stage picks a sound per cue, with two alternatives, and
+  can place it inside its cue (`offset_s`) so a hit lands on the moment it
+  belongs to, like a stamp slamming down half a second into its graphic.
+  Everything is mixed into one full-length stem, which Resolve gives its own
+  track.
+- **Review page:** every render (over the picture it sits on) and every
+  sound effect, in timeline order, with Approve or Redo and a note, and a
+  one-click swap to an alternative sound. Only what you send back is
+  re-rendered, and assemble won't place anything you haven't approved.
 - Needs `node` and `ffmpeg`; HyperFrames (`hyperframes@0.8.71`) is fetched
   by `npx` on first use and brings its own headless Chrome.
 
 Every handoff carries the hashes of what it was made from, so a stage run
 against stale inputs says so instead of producing a quietly wrong edit.
 
+### What's new in 0.6
+
+- **Graphics stage:** HyperFrames renders in your identity, template-first,
+  with one-off compositions checked against house rules, a review page,
+  and per-cue re-renders.
+- **Sound effects** from local libraries, indexed and searchable, mixed into
+  one stem.
+- **Shoot stage:** a shoot pack before recording, and footage registered by
+  file name afterwards.
+- **Assemble** places the approved graphics and the stem, and refuses stale
+  or unapproved renders.
+- **`/claude-cut:produce`** runs the pipeline from the footage folder, with
+  human gates, `--from`, `--to` and `--status`.
+
 ### Tests
 
 ```bash
 cd claude-cut && venv/bin/python -m pytest              # everything
-venv/bin/python -m pytest -m "not slow"                  # skip whisper runs
+venv/bin/python -m pytest -m "not slow"                  # skip whisper and real HyperFrames renders
 CLAUDE_CUT_REAL_FIXTURE=/path/to/recordings venv/bin/python -m pytest -m real
 ```
