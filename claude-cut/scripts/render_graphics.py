@@ -49,7 +49,8 @@ from validate import validate_file
 
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "graphics" / "build.mjs"
-HF = ["npx", "--yes", "hyperframes@0.8.71"]
+HYPERFRAMES = "hyperframes@0.8.157"   # the one place the renderer version is pinned
+HF = ["npx", "--yes", HYPERFRAMES]
 NATIVE_FPS = (24, 30, 60)
 RENDER_VERSION = "1"        # bump to force re-renders when the pipeline changes
 PROXY = (1280, 720)
@@ -285,7 +286,7 @@ def render_all(project: Path, shoot_path: Path | None, only: set | None,
                             f"{want:.6f}s ({frames} frames at {plan['timeline']['fps']})")
             continue
         spec_hash = hashlib.sha256("|".join(map(str, (
-            RENDER_VERSION, hashlib.sha256(html.encode()).hexdigest(),
+            RENDER_VERSION, HYPERFRAMES, hashlib.sha256(html.encode()).hexdigest(),
             local_files_hash(html, (project / comp_rel).parent), frames,
             plan["timeline"]["fps"], render_fps, size, overlay, frame_sha, quality)))
             .encode()).hexdigest()

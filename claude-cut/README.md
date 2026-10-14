@@ -195,8 +195,16 @@ against stale inputs says so instead of producing a quietly wrong edit.
   sound effect, in timeline order, with Approve, or Redo and a note, and a
   one-click swap to an alternative sound. Only what you send back is
   re-rendered, and assemble won't place anything you haven't approved.
-- Needs `node` and `ffmpeg`. HyperFrames (`hyperframes@0.8.71`) is fetched
+- Needs `node` and `ffmpeg`. HyperFrames (`hyperframes@0.8.157`) is fetched
   by `npx` on first use and brings its own headless Chrome.
+- One-off graphics are authored with HeyGen's HyperFrames skills (from
+  [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes)) in
+  `~/.claude/skills`. Check and refresh them with:
+
+  ```bash
+  npx hyperframes skills check
+  npx hyperframes skills update
+  ```
 
 ### Take picking in detail (edit-takes)
 

@@ -35,10 +35,10 @@ sys.path[:0] = [str(SCRIPTS)]
 import identity  # noqa: E402
 from assemble import Timeline  # noqa: E402
 from build_xml import rt  # noqa: E402
+from render_graphics import HF  # noqa: E402
 
 PY = sys.executable
 MCP = HERE / "fixtures" / "mcp-setup"
-HF = ["npx", "--yes", "hyperframes@0.8.71"]
 SFX_LIB = Path("/Volumes/Terrance/assets/The Story Sound Pack")
 
 

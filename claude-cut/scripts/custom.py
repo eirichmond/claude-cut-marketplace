@@ -48,10 +48,10 @@ from fractions import Fraction
 from pathlib import Path
 
 from handoff import HandoffError, load, resolve_input
+from render_graphics import HF
 
 ROOT = Path(__file__).resolve().parent.parent
 SCAFFOLD = ROOT / "graphics" / "scaffold.mjs"
-HF = ["npx", "--yes", "hyperframes@0.8.71"]
 MARKER = "claude-cut:scaffold"
 W, H = 1920, 1080
 CUSTOM_KINDS = ("mg", "lt", "chapter", "callout")
