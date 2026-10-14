@@ -15,12 +15,12 @@ export function render({ identity: id, cue, dur, num, kicker, title, lead, meta 
   const big = title.trim().split(/\s+/).length <= 2;
   const css = `
   .ground { position: absolute; inset: 0; background: var(--accent); transform-origin: left center; }
-  .num, .meta { position: absolute; top: 5.5cqw; color: var(--background); ${role(id, "label", { cqw: 1.15 })} }
+  .num, .meta { position: absolute; top: 5.5cqw; color: var(--background); ${role(id, "label", { cqw: 1.6 })} }
   .num { left: 5.5cqw; } .meta { right: 5.5cqw; }
   .block { position: absolute; left: 5.5cqw; bottom: 5.5cqw; width: 78cqw; color: var(--background); }
   .rule { background: var(--background); margin-bottom: 1.45cqw; }
-  .kicker { ${role(id, "label", { cqw: 1.25 })} color: var(--background); margin-bottom: 1.15cqw; }
-  .title { ${role(id, big ? "display" : "h1")} color: var(--background); }
+  .kicker { ${role(id, "label", { cqw: 1.75 })} color: var(--background); margin-bottom: 1.15cqw; }
+  .title { ${role(id, big ? "display" : "h1", { lineHeight: 1.05 })} color: var(--background); }
   .lead { ${role(id, "lead", { cqw: 1.9, lineHeight: 1.4 })} color: var(--on-accent-muted); margin-top: 1.75cqw; }
   .lead em { color: var(--background); }
   .content { position: absolute; inset: 0; }
@@ -33,7 +33,7 @@ export function render({ identity: id, cue, dur, num, kicker, title, lead, meta 
         <div class="block">
           <span class="rule"></span>
           <div class="mask"><div class="kicker">${esc(kicker)}</div></div>
-          <div class="mask"><h1 class="title">${esc(title)}</h1></div>
+          <div class="mask"><h1 class="title">${esc(title).replace(/\n/g, "<br>")}</h1></div>
           ${lead ? `<div class="mask"><p class="lead">${inline(lead)}</p></div>` : ""}
         </div>
       </div>`;
