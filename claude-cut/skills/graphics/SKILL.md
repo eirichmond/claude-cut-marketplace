@@ -20,8 +20,8 @@ Run scripts with the Python that has the plugin's dependencies. Below,
 the graphics project.
 
 Rendering needs `node`, `ffmpeg` and HyperFrames, which is fetched once
-with `npx` as `hyperframes@0.8.71` and uses its own headless Chrome. If a
-render fails before it starts, run `npx --yes hyperframes@0.8.71 doctor`.
+with `npx` as `hyperframes@0.8.157` and uses its own headless Chrome. If a
+render fails before it starts, run `npx --yes hyperframes@0.8.157 doctor`.
 
 ## 1. Set up the graphics project
 
