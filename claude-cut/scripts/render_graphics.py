@@ -117,12 +117,20 @@ def hyperframes(project: Path, comp: str, out: Path, fps: int, size: str,
          os.path.relpath(out, project)], cwd=project)
 
 
-def convert(raw: Path, out: Path, fps: Fraction, frames: int, overlay: bool) -> None:
-    codec = (["-c:v", "prores_ks", "-profile:v", "4", "-pix_fmt", "yuva444p10le"]
-             if overlay else
-             ["-c:v", "prores_ks", "-profile:v", "3", "-pix_fmt", "yuv422p10le"])
-    run(["ffmpeg", "-v", "error", "-y", "-i", raw, "-vf",
-         f"fps={fps.numerator}/{fps.denominator}", "-frames:v", str(frames),
+def convert(raw: Path, out: Path, fps: Fraction, frames: int, overlay: bool,
+            ground: str = "#0D1F28") -> None:
+    rate = f"fps={fps.numerator}/{fps.denominator}"
+    if overlay:
+        codec = ["-c:v", "prores_ks", "-profile:v", "4", "-pix_fmt", "yuva444p10le"]
+        vf = ["-vf", rate]
+    else:
+        # HyperFrames renders mov with alpha and drops the page background:
+        # flatten full-frame graphics onto the identity's ground, not black
+        codec = ["-c:v", "prores_ks", "-profile:v", "3", "-pix_fmt", "yuv422p10le"]
+        vf = ["-filter_complex",
+              f"[0:v]{rate}[s];color=c={ground}:s=16x16:r={fps.numerator}/{fps.denominator}[g];"
+              f"[g][s]scale2ref[g][v];[g][v]overlay=format=auto:shortest=1:eof_action=repeat,setsar=1"]
+    run(["ffmpeg", "-v", "error", "-y", "-i", raw, *vf, "-frames:v", str(frames),
          *codec, "-vendor", "apl0", out])
 
 
@@ -253,6 +261,7 @@ def render_all(project: Path, shoot_path: Path | None, only: set | None,
     render_fps = int(fps) if fps.denominator == 1 and int(fps) in NATIVE_FPS else 60
     size = "landscape-4k" if plan["timeline"]["width"] >= 3840 else "landscape"
     frame_sha = sha256(project / "frame.md")
+    ground = json.loads((project / "identity.json").read_text())["colors"]["background"]
     cues = {c["id"]: c for c in plan["cues"]}
     shoot = load(shoot_path) if shoot_path else None
 
@@ -272,11 +281,16 @@ def render_all(project: Path, shoot_path: Path | None, only: set | None,
         (project / ".rows.json").write_text(json.dumps(rows))
         run(["node", BUILD, project, project / ".rows.json"])
 
+    # a template built as an overlay (a chapter card wiping over the picture)
+    # keeps its alpha even on a full-frame cue
+    tmpl_layers = {k: v.get("layer") for k, v in json.loads(run(["node", BUILD, "--list"])).items()}
+
     out, problems = [], []
     for g in spec["graphics"]:
         cue = cues[g["cue"]]
         frames = cue["tl"][1] - cue["tl"][0]
-        overlay = cue.get("layer", "overlay") != "full"
+        overlay = (cue.get("layer", "overlay") != "full"
+                   or tmpl_layers.get(g["template"]) == "overlay")
         comp_rel = g.get("composition") or f"compositions/{g['cue']}.html"
         html = (project / comp_rel).read_text()
         want = float(Fraction(frames) / fps)
@@ -307,7 +321,7 @@ def render_all(project: Path, shoot_path: Path | None, only: set | None,
         raw_file = raw / f"{g['cue']}.mov"
         hyperframes(project, comp_rel, raw_file, render_fps, size, quality,
                     float(Fraction(frames) / fps))
-        convert(raw_file, final, fps, frames, overlay)
+        convert(raw_file, final, fps, frames, overlay, ground)
         raw_file.unlink(missing_ok=True)
         n = count_frames(final)
         if n != frames:

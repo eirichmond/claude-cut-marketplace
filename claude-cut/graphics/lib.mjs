@@ -77,6 +77,8 @@ export function page({ identity, id, dur, overlay = false, css = "", html, js, t
     .mask > * { display: block; padding-top: 0.06em; padding-bottom: 0.2em; }
     .rule { display: block; width: 72px; height: 4px; background: var(--accent); transform-origin: left center; }
     em { font-style: normal; color: var(--accent); }
+    /* brand names keep their own case inside lowercase display / uppercase mono */
+    .brand { text-transform: none; }
     code { ${role(identity, "label", { upper: false, tracking: "0" })} font-size: inherit; }
   `;
   // GSAP is vendored into the project (scripts/identity.py install): nothing is
@@ -101,7 +103,7 @@ export function page({ identity, id, dur, overlay = false, css = "", html, js, t
   <body>
     <div id="r-${id}" data-composition-id="${id}" data-start="0"
          data-width="${W}" data-height="${H}" data-duration="${dur}">
-${html}
+${brandCase(html)}
     </div>
     <script>
       (function () {
@@ -117,6 +119,11 @@ ${js}
 </html>
 `;
 }
+
+// "WordPress" always keeps its capital W and P, whatever the role's case.
+export const brandCase = (html) =>
+  html.replace(/>([^<]+)</g, (m, t) =>
+    ">" + t.replace(/wordpress(\.(com|org))?/gi, (_, d) => `<span class="brand">WordPress${d ? d.toLowerCase() : ""}</span>`) + "<");
 
 // In/out timing that shrinks for short cues, so nothing is cut mid-move.
 export function timing(dur, inFor = 0.7, outFor = 0.6) {
