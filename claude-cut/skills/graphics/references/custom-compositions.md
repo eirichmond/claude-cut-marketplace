@@ -64,7 +64,7 @@ won't validate while any composition breaks one.
 - **One composition root**, with `data-composition-id`,
   `data-width="1920" data-height="1080"`, and a `data-duration` that is
   **exactly** the cue's length, in seconds, to six places. The plan fixed
-  the length; the design fits the length, never the other way round.
+  the length, and the design has to fit it.
 - **One paused GSAP timeline, registered** as
   `window.__timelines["<composition id>"]`.
 - **Overlays are transparent:** `html, body { background: transparent }`,
@@ -79,8 +79,8 @@ won't validate while any composition breaks one.
   if they're in its palette. Type comes from frame.md's roles and font
   families (Anton, DM Mono). Don't define new CSS custom properties.
   - **A brief that names a colour** ("a red stamp") gets the identity's
-    equivalent (the accent) in place of the literal colour. The identity
-    wins.
+    equivalent (the accent) in place of the literal colour, because the
+    identity takes priority over the brief.
 
 ## HyperFrames layout checks and deliberate layering
 
@@ -105,6 +105,12 @@ Only mark something after a still shows the layering is intended.
 - An overlay sits on the talking head or a screen recording. Keep it to a
   corner or a band, and keep faces and the centre of the frame clear (the
   brief says what's underneath).
+- **Words on screen** follow the graphics skill's text rules, including
+  no antitheses or aphorisms. A statement frame states the point plainly,
+  and a before/after compare shows two real things side by side rather
+  than staging a "not this, but this" reveal. frame.md's Statement,
+  Fadelist and Compare treatments are layouts; they don't call for slogan
+  copy.
 - Motion should be deterministic. There's no `Math.random` without a seed,
   no clocks, and no infinite repeats.
 - **Example:** `graphics/examples/access-stamp.html` is a 2s full-frame cold

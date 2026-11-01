@@ -39,7 +39,7 @@ Repeat: `P next --json` (add `--to STAGE` if given), then act on `action`:
 
 | `action` | What to do |
 |---|---|
-| `run` | Run the stage (section 3): `P start STAGE`, do the work, then `P done STAGE`. `done` refuses, listing what's missing or invalid, until the outputs are really there. Fix it, don't force it. |
+| `run` | Run the stage (section 3): `P start STAGE`, do the work, then `P done STAGE`. `done` refuses, listing what's missing or invalid, until the outputs are really there. Fix the problem and run `done` again; never work around the check. |
 | `gate` | Stop and hand over (section 4). |
 | `wait` | Only the shoot uses this: the user is recording. Ask whether the recording is finished. If it is, `P start shoot` and register the files (the `register` step). If not, stop. |
 | `stop` | Reached `--to`. Report and stop. |
