@@ -163,7 +163,8 @@ Every graphic, screen, b-roll shot, zoom, blur, sound or marker is a cue:
   the default for beds. `sfx` plays for its natural length and `music` and
   `marker` are points in time, so all three can omit `duration`.
 - **brief**: what it is, precisely enough to build or shoot it. For
-  graphics, include the on-screen words.
+  graphics, include the on-screen words (see "Writing the words you add"
+  below).
 - **script_cue** (optional): the index into `script_cues` this came from,
   or a list of indexes. Several cues can come from one script cue (the
   kitchen illustration that builds across four beats), and one cue can
@@ -266,11 +267,38 @@ runtime (from the top of the render), any notes you left unresolved and
 why, anything in `before_timeline`, and where the files are. Suggest the
 director stage next.
 
+## Writing the words you add
+
+You write chapter titles, the on-screen words in briefs, section purposes
+and notes. Write them in plain, direct British English with no em dashes.
+
+**No antitheses or aphorisms.** Elliott finds them a rigid binary that
+reads as preachy, dramatic and obviously AI-written. Never write
+constructions like these, in a chapter title, a brief's on-screen words or
+a note:
+
+- "It's not X, it's Y." / "This isn't about X. It's about Y."
+- "X isn't the problem. Y is."
+- "Less X, more Y."
+- Grand, quotable one-liners that sound like a slogan or a moral
+  ("Good code is a conversation with your future self.")
+
+State the point plainly and let the explanation follow. If a contrast
+genuinely matters, make it in one ordinary sentence ("Most people reach
+for a plugin here, but a few lines in functions.php does the job.") rather
+than as a staged reveal. Before writing the draft, read every chapter
+title and every quoted on-screen line: if it could be printed on a mug or
+a motivational poster, rewrite it.
+
+The script's spoken words are Elliott's and are never changed here. If a
+script paragraph opens with an antithesis or an aphorism, mention it in
+`before_timeline` so he can decide whether to rewrite it.
+
 ## Principles
 
-- Every visual earns its place by supporting the message. Cut anything
+- Keep a visual only if it supports the message, and cut anything
   decorative.
-- Match cuts to the rhythm of speech, not to a metronome.
+- Time cuts to the rhythm of the speech rather than to a fixed interval.
 - Keep b-roll honest to the point being made. Don't illustrate a claim you
   can't back up.
 - Never rewrite, reorder or drop the script's words. If something in the

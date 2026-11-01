@@ -85,7 +85,12 @@ For each segment add:
   what they're talking over.
 
 Both are printed on the prompters as `###` lines under the segment's
-heading, so keep them short: one line each.
+heading, so keep them short: one line each. Write them as plain
+instructions ("slow down on the password step, then land the warning"),
+and the same for judgement calls. No antitheses or aphorisms: never "It's
+not a demo, it's a story", "Less explaining, more showing", or a
+slogan-style one-liner that sounds like a moral. Elliott finds them
+preachy and obviously AI-written.
 
 Watch the rhythm: switching between face and screen more often than every
 10 to 15 seconds feels choppy unless it's deliberate. Prefer fewer, longer
@@ -161,7 +166,7 @@ director only adds beds to sub-beats). Either keep the beat TH with a
 judgement call, or stop and tell the user the paper edit needs a bed on
 that beat.
 
-The paper edit's picture is evidence, not a verdict. The "if in doubt,
+The paper edit's picture is one piece of evidence to weigh. The "if in doubt,
 talking head" rule and the talking-head list above still apply to a beat
 with a bed: keep it on camera and retime the bed into a cutaway.
 

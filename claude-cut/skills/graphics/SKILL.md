@@ -57,7 +57,7 @@ For each cue, `brief` gives:
   (replaces the picture);
 - what's underneath it.
 
-The length is fixed by the plan. Design to it, never around it.
+The length is fixed by the plan, so design the graphic to fit it.
 
 ## 3. Decide each graphic: a template first
 
@@ -85,6 +85,25 @@ Use a template whenever one carries the brief:
   sit bottom left. Put callouts and tags in the corner the brief asks for,
   otherwise `bl` (callout) or `tr` (tag). If the brief says where the
   speaker is ("beside Elliott"), use the opposite side.
+
+**No antitheses or aphorisms in on-screen words.** Elliott finds them a
+rigid binary that reads as preachy, dramatic and obviously AI-written.
+Never write constructions like these, in any variable:
+
+- "It's not X, it's Y." / "This isn't about X. It's about Y."
+- "X isn't the problem. Y is."
+- "Less X, more Y."
+- Grand, quotable one-liners that sound like a slogan or a moral
+  ("Good code is a conversation with your future self.")
+
+A headline names the thing, a line says plainly what it does, and a
+`warningStrip` says what to avoid in an ordinary sentence. If a contrast
+genuinely matters, put both halves in one plain line ("Plugins can do
+this, but two lines in functions.php will too."). A brief's quoted words
+follow the same rule: if they're one of these, write a plain version and
+mention it when you report back. Before writing `graphics.json`, read
+every headline and line: if it could be printed on a mug or a
+motivational poster, rewrite it.
 
 Ignore `slideAcross`: it's the spike's wipe test.
 
@@ -214,7 +233,8 @@ A note asking for a different length or position is also a plan change:
 - For a small adjustment, it's easier to nudge the clip in Resolve.
 - Otherwise it's the paper edit or director stage, then conform, then here again.
 
-Tell the user which it is. Don't fake a fix.
+Tell the user which it is, and don't make a change here that only looks
+like a fix.
 
 Then re-stamp (`write_handoff.py`, as in step 5) and render again. Only the
 changed cues re-render and go back to pending; approvals on everything else
