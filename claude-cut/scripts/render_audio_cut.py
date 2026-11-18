@@ -71,7 +71,8 @@ def main() -> None:
     try:
         res = subprocess.run(
             ["ffmpeg", "-y", "-v", "error", "-i", str(args.source),
-             "-filter_complex_script", str(script), "-map", "[out]",
+             # ffmpeg 7+ dropped -filter_complex_script; "-/opt file" reads the value from a file.
+             "-/filter_complex", str(script), "-map", "[out]",
              "-c:a", "pcm_s24le", "-ar", str(info["rate"]), str(args.output)],
             capture_output=True, text=True)
     finally:
